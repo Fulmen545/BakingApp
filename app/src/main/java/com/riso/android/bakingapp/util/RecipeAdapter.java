@@ -2,6 +2,7 @@ package com.riso.android.bakingapp.util;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Paint;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,6 +24,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     final private ListItemClickListener mOnClickListener;
 
     private String[] mRecipeNames;
+    public boolean steps = false;
 
     public RecipeAdapter(String[] recipeNames, ListItemClickListener mOnClickListener) {
         mRecipeNames = recipeNames;
@@ -60,17 +62,26 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     }
 
     class RecipeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        //        @BindView(R.id.recipeTitle) TextView recipeNameTv;
+        @BindView(R.id.recipeTitle)
         TextView recipeNameTv;
+
         public RecipeViewHolder(View itemView) {
             super(itemView);
-//            ButterKnife.bind((Activity) itemView.getContext());
-            recipeNameTv = itemView.findViewById(R.id.recipeTitle);
+            ButterKnife.bind(this, itemView);
             itemView.setOnClickListener(this);
         }
 
         void bind(int listIndex) {
-            recipeNameTv.setText(mRecipeNames[listIndex]);
+            if (steps && mRecipeNames[listIndex] != "Ingredients") {
+                recipeNameTv.setText(mRecipeNames[listIndex]);
+                recipeNameTv.setTextAppearance(itemView.getContext(), R.style.TitleSteps);
+            } else if (mRecipeNames[listIndex] == "Ingredients") {
+                recipeNameTv.setText(mRecipeNames[listIndex]);
+                recipeNameTv.setTextAppearance(itemView.getContext(), R.style.Ingredients);
+                steps = true;
+            } else {
+                recipeNameTv.setText(mRecipeNames[listIndex]);
+            }
         }
 
         @Override

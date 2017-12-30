@@ -2,11 +2,14 @@ package com.riso.android.bakingapp;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -34,11 +37,15 @@ import butterknife.ButterKnife;
  * to handle interaction events.
  * create an instance of this fragment.
  */
-public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemClickListener{
+public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemClickListener {
+    private static final String POSITION = "position";
+    private static final String RECIPE_NAME = "rec_name";
+
     public String[] recipeNames;
     @BindView(R.id.rv_recipes)
     RecyclerView mRecipeNamesList;
     public RecipeAdapter mRecipeAdapter;
+
 
     @Nullable
     @Override
@@ -53,7 +60,8 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ButterKnife.bind(this,view);
+        getActivity().setTitle(R.string.app_name);
+        ButterKnife.bind(this, view);
         new GetRecipes().execute();
         LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         mRecipeNamesList.setLayoutManager(layoutManager);
@@ -83,9 +91,33 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
         getContext().getContentResolver().insert(RecipeColumns.RecipeEntry.CONTENT_URI_STEPS, cv);
     }
 
+    private void changeTo(Fragment fragment, int containerViewId) {
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        fragmentManager.beginTransaction().replace(containerViewId, fragment).addToBackStack("tag").commit();
+    }
+
     @Override
     public void onListItemClick(int listItem) {
+        Bundle bundle = new Bundle();
+        bundle.putInt(POSITION, listItem);
+        bundle.putString(RECIPE_NAME, recipeNames[listItem]);
+        StepListFragment slf = new StepListFragment();
+        slf.setArguments(bundle);
+        changeTo(slf, android.R.id.content);
+    }
 
+    public boolean isInsideDb(String recipeName) {
+        Cursor c = getActivity().getContentResolver().query(RecipeColumns.RecipeEntry.CONTENT_URI_INGREDIENTS,
+                new String[]{RecipeColumns.RecipeEntry.RECIPE_NAME},
+                RecipeColumns.RecipeEntry.RECIPE_NAME + "=?",
+                new String[]{recipeName},
+                null);
+        if (!c.moveToNext()) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     private class GetRecipes extends AsyncTask<Void, Void, Void> {
@@ -111,20 +143,22 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
                     for (int i = 0; i < recipes.length(); i++) {
                         String mRecipeName = recipes.getJSONObject(i).getString("name");
                         recipeNames[i] = mRecipeName;
-                        String mRecipeID = Integer.toString(i);
-                        JSONObject o = recipes.getJSONObject(i);
-                        JSONArray ingredients = o.getJSONArray("ingredients");
-                        for (int j = 0; j < ingredients.length(); j++) {
-                            String mIngredID = Integer.toString(j);
-                            JSONObject ing = ingredients.getJSONObject(j);
-                            insertIngredients(mRecipeID, mRecipeName, mIngredID, ing.getString("quantity"), ing.getString("measure"), ing.getString("ingredient"));
-                        }
-                        JSONArray steps = o.getJSONArray("steps");
-                        for (int k = 0; k<steps.length(); k++){
-                            String mStepID = Integer.toString(k);
-                            JSONObject stp = steps.getJSONObject(k);
-                            insertSteps(mRecipeID, mStepID, stp.getString("shortDescription"),
-                                    stp.getString("description"), stp.getString("videoURL"));
+                        if (!isInsideDb(mRecipeName)) {
+                            String mRecipeID = Integer.toString(i);
+                            JSONObject o = recipes.getJSONObject(i);
+                            JSONArray ingredients = o.getJSONArray("ingredients");
+                            for (int j = 0; j < ingredients.length(); j++) {
+                                String mIngredID = Integer.toString(j);
+                                JSONObject ing = ingredients.getJSONObject(j);
+                                insertIngredients(mRecipeID, mRecipeName, mIngredID, ing.getString("quantity"), ing.getString("measure"), ing.getString("ingredient"));
+                            }
+                            JSONArray steps = o.getJSONArray("steps");
+                            for (int k = 0; k < steps.length(); k++) {
+                                String mStepID = Integer.toString(k);
+                                JSONObject stp = steps.getJSONObject(k);
+                                insertSteps(mRecipeID, mStepID, stp.getString("shortDescription"),
+                                        stp.getString("description"), stp.getString("videoURL"));
+                            }
                         }
                     }
                 } catch (JSONException e) {

@@ -1,0 +1,55 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.riso.android.bakingapp.DetailFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/desc_row">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/ingredient_name_tv"
+            android:text="Ingredient"
+            android:layout_weight="6"
+            android:theme="@style/Description"
+            />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/quantity_tv"
+            android:layout_weight="2"
+            android:theme="@style/Description"
+            android:text="Quantity"
+            />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/measure_tv"
+            android:text="Measure"
+            android:theme="@style/Description"
+            android:layout_weight="2"
+
+            />
+
+    </LinearLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/detail_rv"
+        android:layout_below="@id/desc_row"/>
+
+    <include
+        layout="@layout/orientation_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/orient_btns"/>
+
+</RelativeLayout>
