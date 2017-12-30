@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/stepTitle"
+        tools:text="Step Title"
+        android:textSize="25dp"
+        android:fontFamily="sans-serif"
+        android:padding="10dp"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimary"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/stepDesc"
+        android:padding="10dp"
+        android:textSize="15dp"
+        tools:text="Here is dummy text for dummy preson to read"/>
+
+</LinearLayout>

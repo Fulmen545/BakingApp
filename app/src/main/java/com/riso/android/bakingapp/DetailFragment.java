@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
@@ -29,10 +30,11 @@ import butterknife.ButterKnife;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class DetailFragment extends Fragment implements IngredientsAdapter.ListItemClickListener{
+public class DetailFragment extends Fragment implements IngredientsAdapter.ListItemClickListener {
     private static final String POSITION = "position";
     private static final String RECIPE_NAME = "rec_name";
     private static final String RECEPT_POSITION = "recept_position";
+    private static final String STEP_COUNT = "step_count";
 
 
     @BindView(R.id.back_button)
@@ -42,7 +44,9 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
     @BindView(R.id.detail_rv)
     RecyclerView ingredientRv;
     private int position;
+    private String recipeName;
     private String recept_position;
+    private int stepCount;
     private IngredientItems[] mIngredientList;
     private IngredientsAdapter mIngredientAdapter;
 
@@ -59,6 +63,8 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
         Bundle bundle = this.getArguments();
+        stepCount = bundle.getInt(STEP_COUNT);
+        recipeName = bundle.getString(RECIPE_NAME);
         position = bundle.getInt(POSITION, 0);
         recept_position = bundle.getString(RECEPT_POSITION);
         back_btn.setText(getString(R.string.step_list));
@@ -67,10 +73,24 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
             public void onClick(View v) {
                 getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
                 getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK));
+//                getActivity().getSupportFragmentManager().beginTransaction().remove(DetailFragment.this).commit();
             }
         });
-        forward_btn.setText(getString(R.string.step_number) + " " + position + 1);
-        getActivity().setTitle(bundle.getString(RECIPE_NAME));
+        forward_btn.setText(getString(R.string.step_number) + " " + ++position);
+        forward_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                bundle.putInt(POSITION, position);
+                bundle.putString(RECEPT_POSITION, recept_position);
+                bundle.putString(RECIPE_NAME, recipeName);
+                bundle.putInt(STEP_COUNT, stepCount);
+                StepsFragment sf = new StepsFragment();
+                sf.setArguments(bundle);
+                changeTo(sf, android.R.id.content);
+            }
+        });
+        getActivity().setTitle(recipeName);
         LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         ingredientRv.setLayoutManager(layoutManager);
         getIngredientList();
@@ -82,6 +102,12 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
     public void onListItemClick(int listItem) {
     }
 
+    private void changeTo(Fragment fragment, int containerViewId) {
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+//        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        fragmentManager.beginTransaction().replace(containerViewId, fragment).commit();
+    }
+
     private void getIngredientList() {
         Cursor c = getActivity().getContentResolver().query(RecipeColumns.RecipeEntry.CONTENT_URI_INGREDIENTS,
                 new String[]{RecipeColumns.RecipeEntry.INGREDIENT, RecipeColumns.RecipeEntry.QUANTITY, RecipeColumns.RecipeEntry.MEASURE},
@@ -91,8 +117,8 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
         if (c.getCount() != 0) {
             IngredientItems item;
             mIngredientList = new IngredientItems[c.getCount()];
-            int i=0;
-            if (c.moveToFirst()){
+            int i = 0;
+            if (c.moveToFirst()) {
                 do {
                     String cIngredient = c.getString(c.getColumnIndex(RecipeColumns.RecipeEntry.INGREDIENT));
                     String cQuantity = c.getString(c.getColumnIndex(RecipeColumns.RecipeEntry.QUANTITY));
@@ -104,4 +130,5 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
             }
         }
     }
+
 }

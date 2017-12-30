@@ -31,6 +31,7 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
     private static final String POSITION = "position";
     private static final String RECEPT_POSITION = "recept_position";
     private static final String RECIPE_NAME = "rec_name";
+    private static final String STEP_COUNT = "step_count";
     private static final String TAG = "StepListFragment";
     private String recipePosition;
     @BindView(R.id.rv_recipes)
@@ -104,10 +105,15 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
         bundle.putInt(POSITION, listItem);
         bundle.putString(RECEPT_POSITION, recipePosition);
         bundle.putString(RECIPE_NAME, recipeTitle);
+        bundle.putInt(STEP_COUNT, recipeSteps.length);
         if (listItem==0) {
             DetailFragment df = new DetailFragment();
             df.setArguments(bundle);
             changeTo(df, android.R.id.content);
+        } else {
+            StepsFragment sf = new StepsFragment();
+            sf.setArguments(bundle);
+            changeTo(sf, android.R.id.content);
         }
     }
 }
