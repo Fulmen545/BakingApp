@@ -72,10 +72,10 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         }
 
         void bind(int listIndex) {
-            if (mRecipeNames[listIndex].startsWith("Step")) {
+            if (mRecipeNames[listIndex].startsWith("Step")|| mRecipeNames[listIndex].startsWith("Recipe Introduction")) {
                 recipeNameTv.setText(mRecipeNames[listIndex]);
                 recipeNameTv.setTextAppearance(itemView.getContext(), R.style.TitleSteps);
-            } else if (mRecipeNames[listIndex] == "Ingredients") {
+            } else if (mRecipeNames[listIndex] == "Ingredients" ) {
                 recipeNameTv.setText(mRecipeNames[listIndex]);
                 recipeNameTv.setTextAppearance(itemView.getContext(), R.style.Ingredients);
             } else {

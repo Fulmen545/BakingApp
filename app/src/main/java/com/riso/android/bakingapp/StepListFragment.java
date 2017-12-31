@@ -27,7 +27,7 @@ import butterknife.ButterKnife;
  * Created by richard.janitor on 28-Dec-17.
  */
 
-public class StepListFragment extends Fragment implements RecipeAdapter.ListItemClickListener{
+public class StepListFragment extends Fragment implements RecipeAdapter.ListItemClickListener {
     private static final String POSITION = "position";
     private static final String RECEPT_POSITION = "recept_position";
     private static final String RECIPE_NAME = "rec_name";
@@ -53,7 +53,7 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
 
         Bundle bundle = this.getArguments();
         recipePosition = Integer.toString(bundle.getInt(POSITION, 0));
-        recipeTitle=bundle.getString(RECIPE_NAME);
+        recipeTitle = bundle.getString(RECIPE_NAME);
         getActivity().setTitle(recipeTitle);
         LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         mRecipeNamesList.setLayoutManager(layoutManager);
@@ -84,9 +84,15 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
             recipeSteps = new String[c.getCount() + 1];
             recipeSteps[0] = "Ingredients";
             int i = 1;
-            if (c.moveToFirst()){
+            int stepId;
+            if (c.moveToFirst()) {
                 do {
-                    recipeSteps[i]="Step "+i+": " +c.getString(c.getColumnIndex(RecipeColumns.RecipeEntry.STEP_TITLE));
+                    stepId=i-1;
+                    if (i == 1) {
+                        recipeSteps[i] = c.getString(c.getColumnIndex(RecipeColumns.RecipeEntry.STEP_TITLE));
+                    } else {
+                        recipeSteps[i] = "Step " + stepId + ": " + c.getString(c.getColumnIndex(RecipeColumns.RecipeEntry.STEP_TITLE));
+                    }
                     i++;
                 } while (c.moveToNext());
             }
@@ -106,7 +112,7 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
         bundle.putString(RECEPT_POSITION, recipePosition);
         bundle.putString(RECIPE_NAME, recipeTitle);
         bundle.putInt(STEP_COUNT, recipeSteps.length);
-        if (listItem==0) {
+        if (listItem == 0) {
             DetailFragment df = new DetailFragment();
             df.setArguments(bundle);
             changeTo(df, android.R.id.content);

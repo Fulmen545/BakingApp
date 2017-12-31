@@ -76,12 +76,12 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
 //                getActivity().getSupportFragmentManager().beginTransaction().remove(DetailFragment.this).commit();
             }
         });
-        forward_btn.setText(getString(R.string.step_number) + " " + ++position);
+        forward_btn.setText(getString(R.string.rec_introduction));
         forward_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Bundle bundle = new Bundle();
-                bundle.putInt(POSITION, position);
+                bundle.putInt(POSITION, position+1);
                 bundle.putString(RECEPT_POSITION, recept_position);
                 bundle.putString(RECIPE_NAME, recipeName);
                 bundle.putInt(STEP_COUNT, stepCount);
@@ -106,6 +106,7 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
 //        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         fragmentManager.beginTransaction().replace(containerViewId, fragment).commit();
+        getActivity().getSupportFragmentManager().beginTransaction().remove(DetailFragment.this).commit();
     }
 
     private void getIngredientList() {

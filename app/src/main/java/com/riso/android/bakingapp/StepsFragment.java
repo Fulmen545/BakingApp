@@ -28,7 +28,7 @@ import butterknife.ButterKnife;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class StepsFragment extends Fragment implements StepsAdapter.ListItemClickListener{
+public class StepsFragment extends Fragment implements StepsAdapter.ListItemClickListener {
     private static final String POSITION = "position";
     private static final String RECIPE_NAME = "rec_name";
     private static final String RECEPT_POSITION = "recept_position";
@@ -38,7 +38,6 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
     private String stepPosition;
     private String recept_position;
     private String recipeName;
-    private int stepForward;
     private int stepBack;
     private int stepCount;
     @BindView(R.id.back_button)
@@ -69,18 +68,20 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
         stepCount = bundle.getInt(STEP_COUNT);
         recipeName = bundle.getString(RECIPE_NAME);
         position = bundle.getInt(POSITION, 0);
-        stepPosition = Integer.toString(position-1);
+        stepPosition = Integer.toString(position - 1);
         recept_position = bundle.getString(RECEPT_POSITION);
-        if (position==1) {
+        if (position == 1) {
             back_btn.setText(getString(R.string.ingredients));
+        } else if (position == 2) {
+            back_btn.setText(getString(R.string.rec_introduction));
         } else {
-            stepBack = position-1;
+            stepBack = position - 2;
             back_btn.setText(getString(R.string.step_number) + " " + stepBack);
         }
         back_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (position==1){
+                if (position == 1) {
                     Bundle bundle = new Bundle();
                     bundle.putInt(POSITION, position);
                     bundle.putString(RECEPT_POSITION, recept_position);
@@ -91,7 +92,7 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
                     changeTo(df, android.R.id.content);
                 } else {
                     Bundle bundle = new Bundle();
-                    bundle.putInt(POSITION, stepBack);
+                    bundle.putInt(POSITION, position-1);
                     bundle.putString(RECEPT_POSITION, recept_position);
                     bundle.putString(RECIPE_NAME, recipeName);
                     bundle.putInt(STEP_COUNT, stepCount);
@@ -101,16 +102,15 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
                 }
             }
         });
-        stepForward=position+1;
-        if (stepCount==stepForward){
+        if (stepCount == position+1) {
             forward_btn.setBackgroundColor(Color.parseColor("#bdbdbd"));
         } else {
-            forward_btn.setText(getString(R.string.step_number) + " " + stepForward );
+            forward_btn.setText(getString(R.string.step_number) + " " + position);
             forward_btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Bundle bundle = new Bundle();
-                    bundle.putInt(POSITION, stepForward);
+                    bundle.putInt(POSITION, position + 1);
                     bundle.putString(RECEPT_POSITION, recept_position);
                     bundle.putString(RECIPE_NAME, recipeName);
                     bundle.putInt(STEP_COUNT, stepCount);
@@ -133,6 +133,7 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
 //        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         fragmentManager.beginTransaction().replace(containerViewId, fragment).commit();
+        getActivity().getSupportFragmentManager().beginTransaction().remove(StepsFragment.this).commit();
     }
 
     private void getStepArray() {
@@ -144,8 +145,8 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
         if (c.getCount() != 0) {
             StepItems item;
             mStepArray = new StepItems[c.getCount()];
-            int i=0;
-            if (c.moveToFirst()){
+            int i = 0;
+            if (c.moveToFirst()) {
                 do {
                     String cTitle = c.getString(c.getColumnIndex(RecipeColumns.RecipeEntry.STEP_TITLE));
                     String cDescription = c.getString(c.getColumnIndex(RecipeColumns.RecipeEntry.DESCRIPTION));
