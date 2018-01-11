@@ -1,6 +1,7 @@
 package com.riso.android.bakingapp.util;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,6 +9,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.LoadControl;
+import com.google.android.exoplayer2.RenderersFactory;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.riso.android.bakingapp.R;
 import com.riso.android.bakingapp.data.IngredientItems;
 import com.riso.android.bakingapp.data.StepItems;
@@ -65,16 +82,41 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHol
         TextView stepTitle_tv;
         @BindView(R.id.stepDesc)
         TextView stepDesc_tv;
+        @BindView(R.id.playerView)
+        SimpleExoPlayerView exoPlayerView;
+        SimpleExoPlayer exoPlayer;
 
         public StepsViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+
+
             itemView.setOnClickListener(this);
         }
 
         public void bind(int position) {
+            if (mStepItems[position].url.isEmpty())
+                exoPlayerView.setVisibility(View.GONE);
+            else {
+                try {
+                    BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+                    TrackSelector trackSelector = new DefaultTrackSelector(new AdaptiveTrackSelection.Factory(bandwidthMeter));
+                    LoadControl loadControl = new DefaultLoadControl();
+                    exoPlayer = ExoPlayerFactory.newSimpleInstance(itemView.getContext(), trackSelector, loadControl);
+                    Uri videoUri = Uri.parse(mStepItems[position].url);
+                    DefaultHttpDataSourceFactory dataSourceFactory = new DefaultHttpDataSourceFactory("exoplayer_video");
+                    ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
+                    MediaSource mediaSource = new ExtractorMediaSource(videoUri, dataSourceFactory, extractorsFactory, null, null);
+                    exoPlayerView.setPlayer(exoPlayer);
+                    exoPlayer.prepare(mediaSource);
+                    exoPlayer.setPlayWhenReady(false);
+                } catch (Exception e) {
+                    Log.e(TAG, "RISO exoplayer: " + e.toString());
+                }
+            }
             stepTitle_tv.setText(mStepItems[position].stepTitle);
             stepDesc_tv.setText(mStepItems[position].description);
+
         }
 
         @Override

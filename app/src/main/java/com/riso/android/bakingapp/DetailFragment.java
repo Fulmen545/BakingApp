@@ -1,6 +1,7 @@
 package com.riso.android.bakingapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -59,7 +60,7 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
         Bundle bundle = this.getArguments();
@@ -71,9 +72,19 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
         back_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
-                getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK));
+//                getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
+//                getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK));
 //                getActivity().getSupportFragmentManager().beginTransaction().remove(DetailFragment.this).commit();
+                Bundle bundle = new Bundle();
+                bundle.putInt(POSITION, Integer.parseInt(recept_position));
+                bundle.putString(RECIPE_NAME, recipeName);
+//                StepListFragment slf = new StepListFragment();
+//                slf.setArguments(bundle);
+//                changeTo(slf, android.R.id.content);
+                Intent intent = new Intent(getActivity(), StepListActivity.class);
+                intent.putExtras(bundle);
+                startActivity(intent);
+
             }
         });
         forward_btn.setText(getString(R.string.rec_introduction));
@@ -87,7 +98,12 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
                 bundle.putInt(STEP_COUNT, stepCount);
                 StepsFragment sf = new StepsFragment();
                 sf.setArguments(bundle);
-                changeTo(sf, android.R.id.content);
+                changeTo(sf, android.R.id.content, "tag1");
+//                Intent intent = new Intent(view.getContext(), ExoTestActivity.class);
+//                startActivity(intent);
+//                Intent intent = new Intent(getActivity(), StepActivity.class);
+//                intent.putExtras(bundle);
+//                startActivity(intent);
             }
         });
         getActivity().setTitle(recipeName);
@@ -102,11 +118,18 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
     public void onListItemClick(int listItem) {
     }
 
-    private void changeTo(Fragment fragment, int containerViewId) {
+//    private void changeTo(Fragment fragment, int containerViewId) {
+//        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+////        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+//        fragmentManager.beginTransaction().replace(containerViewId, fragment).commit();
+//        getActivity().getSupportFragmentManager().beginTransaction().remove(DetailFragment.this).commit();
+//    }
+
+    public void changeTo(Fragment fragment, int containerViewId, String tag) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-//        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        fragmentManager.beginTransaction().replace(containerViewId, fragment).commit();
-        getActivity().getSupportFragmentManager().beginTransaction().remove(DetailFragment.this).commit();
+        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        fragmentManager.beginTransaction().replace(containerViewId, fragment, tag == null ? fragment.getClass().getName() : tag).commit();
+
     }
 
     private void getIngredientList() {

@@ -102,9 +102,12 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
         Bundle bundle = new Bundle();
         bundle.putInt(POSITION, listItem);
         bundle.putString(RECIPE_NAME, recipeNames[listItem]);
-        StepListFragment slf = new StepListFragment();
-        slf.setArguments(bundle);
-        changeTo(slf, android.R.id.content);
+//        StepListFragment slf = new StepListFragment();
+//        slf.setArguments(bundle);
+//        changeTo(slf, android.R.id.content);
+        Intent intent = new Intent(getActivity(), StepListActivity.class);
+        intent.putExtras(bundle);
+        startActivity(intent);
     }
 
     public boolean isInsideDb(String recipeName) {

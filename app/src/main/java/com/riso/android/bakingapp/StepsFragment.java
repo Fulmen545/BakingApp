@@ -1,20 +1,43 @@
 package com.riso.android.bakingapp;
 
 
+import android.app.Dialog;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.LoadControl;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.riso.android.bakingapp.data.IngredientItems;
 import com.riso.android.bakingapp.data.RecipeColumns;
 import com.riso.android.bakingapp.data.StepItems;
@@ -34,6 +57,11 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
     private static final String RECEPT_POSITION = "recept_position";
     private static final String STEP_COUNT = "step_count";
 
+    private final String STATE_RESUME_WINDOW = "resumeWindow";
+    private final String STATE_RESUME_POSITION = "resumePosition";
+    private final String STATE_PLAYER_FULLSCREEN = "playerFullscreen";
+    private final String STATE_PLAYER_PLAYING = "playerState";
+
     private int position;
     private String stepPosition;
     private String recept_position;
@@ -44,10 +72,25 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
     TextView back_btn;
     @BindView(R.id.forward_button)
     TextView forward_btn;
-    @BindView(R.id.steps_rv)
-    RecyclerView stepsRv;
+//    @BindView(R.id.steps_rv)
+//    RecyclerView stepsRv;
     private StepItems[] mStepArray;
     private StepsAdapter mStepAdapter;
+
+    @BindView(R.id.stepTitle)
+    TextView stepTitle_tv;
+    @BindView(R.id.stepDesc)
+    TextView stepDesc_tv;
+    @BindView(R.id.playerView)
+    SimpleExoPlayerView exoPlayerView;
+    SimpleExoPlayer exoPlayer;
+
+    private int mResumeWindow;
+    private long mResumePosition;
+    private boolean mExoPlayerFullscreen = false;
+    private Dialog mFullScreenDialog;
+    private boolean mPlayingState;
+
 
 
     @Nullable
@@ -64,6 +107,14 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
         super.onViewCreated(view, savedInstanceState);
         getActivity().setTitle(R.string.app_name);
         ButterKnife.bind(this, view);
+        if (savedInstanceState != null) {
+            mResumeWindow = savedInstanceState.getInt(STATE_RESUME_WINDOW);
+            mResumePosition = savedInstanceState.getLong(STATE_RESUME_POSITION);
+            mExoPlayerFullscreen = savedInstanceState.getBoolean(STATE_PLAYER_FULLSCREEN);
+            mPlayingState = savedInstanceState.getBoolean(STATE_PLAYER_PLAYING);;
+        } else {
+            mPlayingState = false;
+        }
         Bundle bundle = this.getArguments();
         stepCount = bundle.getInt(STEP_COUNT);
         recipeName = bundle.getString(RECIPE_NAME);
@@ -83,13 +134,16 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
             public void onClick(View v) {
                 if (position == 1) {
                     Bundle bundle = new Bundle();
-                    bundle.putInt(POSITION, position);
+                    bundle.putInt(POSITION, position-1);
                     bundle.putString(RECEPT_POSITION, recept_position);
                     bundle.putString(RECIPE_NAME, recipeName);
                     bundle.putInt(STEP_COUNT, stepCount);
                     DetailFragment df = new DetailFragment();
                     df.setArguments(bundle);
-                    changeTo(df, android.R.id.content);
+                    changeTo(df, android.R.id.content, "tag1");
+//                    Intent intent = new Intent(getActivity(), DetailActivity.class);
+//                    intent.putExtras(bundle);
+//                    startActivity(intent);
                 } else {
                     Bundle bundle = new Bundle();
                     bundle.putInt(POSITION, position-1);
@@ -98,7 +152,10 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
                     bundle.putInt(STEP_COUNT, stepCount);
                     StepsFragment sf = new StepsFragment();
                     sf.setArguments(bundle);
-                    changeTo(sf, android.R.id.content);
+                    changeTo(sf, android.R.id.content, "tag1");
+//                    Intent intent = new Intent(getActivity(), StepActivity.class);
+//                    intent.putExtras(bundle);
+//                    startActivity(intent);
                 }
             }
         });
@@ -116,25 +173,82 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
                     bundle.putInt(STEP_COUNT, stepCount);
                     StepsFragment sf = new StepsFragment();
                     sf.setArguments(bundle);
-                    changeTo(sf, android.R.id.content);
+                    changeTo(sf, android.R.id.content, "tag1");
+//                    Intent intent = new Intent(getActivity(), StepActivity.class);
+//                    intent.putExtras(bundle);
+//                    startActivity(intent);
                 }
             });
         }
         getActivity().setTitle(recipeName);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
-        stepsRv.setLayoutManager(layoutManager);
+//        LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
+//        stepsRv.setLayoutManager(layoutManager);
         getStepArray();
-        mStepAdapter = new StepsAdapter(mStepArray, StepsFragment.this);
-        stepsRv.setAdapter(mStepAdapter);
+//        mStepAdapter = new StepsAdapter(mStepArray, StepsFragment.this);
+//        stepsRv.setAdapter(mStepAdapter);
+
+        //=================================================================
+        initExoPlayer();
+
+        stepTitle_tv.setText(mStepArray[0].stepTitle);
+        stepDesc_tv.setText(mStepArray[0].description);
+
+
     }
 
-    private void changeTo(Fragment fragment, int containerViewId) {
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-//        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        fragmentManager.beginTransaction().replace(containerViewId, fragment).commit();
-        getActivity().getSupportFragmentManager().beginTransaction().remove(StepsFragment.this).commit();
+    public void initExoPlayer(){
+        if (mStepArray[0].url.isEmpty())
+            exoPlayerView.setVisibility(View.GONE);
+        else {
+            try {
+                BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+                TrackSelector trackSelector = new DefaultTrackSelector(new AdaptiveTrackSelection.Factory(bandwidthMeter));
+                LoadControl loadControl = new DefaultLoadControl();
+                exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector, loadControl);
+                Uri videoUri = Uri.parse(mStepArray[0].url);
+                DefaultHttpDataSourceFactory dataSourceFactory = new DefaultHttpDataSourceFactory("exoplayer_video");
+                ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
+                MediaSource mediaSource = new ExtractorMediaSource(videoUri, dataSourceFactory, extractorsFactory, null, null);
+                exoPlayerView.setPlayer(exoPlayer);
+                boolean haveResumePosition = mResumeWindow != C.INDEX_UNSET;
+
+                if (haveResumePosition) {
+                    exoPlayerView.getPlayer().seekTo(mResumeWindow, mResumePosition);
+                }
+                exoPlayer.prepare(mediaSource);
+                exoPlayer.setPlayWhenReady(mPlayingState);
+            } catch (Exception e) {
+                Log.e("StepFragment", "RISO exoplayer: " + e.toString());
+            }
+        }
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+
+        outState.putInt(STATE_RESUME_WINDOW, mResumeWindow);
+        outState.putLong(STATE_RESUME_POSITION, mResumePosition);
+        outState.putBoolean(STATE_PLAYER_FULLSCREEN, mExoPlayerFullscreen);
+        outState.putBoolean(STATE_PLAYER_PLAYING, mPlayingState);
+
+        super.onSaveInstanceState(outState);
+    }
+
+//    private void changeTo(Fragment fragment, int containerViewId) {
+//        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+//        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+//        fragmentManager.beginTransaction().replace(containerViewId, fragment).addToBackStack("tag").commit();
+////        getActivity().getSupportFragmentManager().beginTransaction().remove(StepsFragment.this).commit();
+//    }
+
+    public void changeTo(Fragment fragment, int containerViewId, String tag) {
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        fragmentManager.beginTransaction().replace(containerViewId, fragment, tag == null ? fragment.getClass().getName() : tag).commit();
+
+    }
+
 
     private void getStepArray() {
         Cursor c = getActivity().getContentResolver().query(RecipeColumns.RecipeEntry.CONTENT_URI_STEPS,
@@ -164,5 +278,56 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
 
     }
 
+//    private void initFullscreenDialog() {
+//
+//        mFullScreenDialog = new Dialog(getContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen) {
+//            public void onBackPressed() {
+//                if (mExoPlayerFullscreen)
+//                    closeFullscreenDialog();
+//                super.onBackPressed();
+//            }
+//        };
+//    }
+//
+//    private void openFullscreenDialog() {
+//
+//        ((ViewGroup) exoPlayerView.getParent()).removeView(exoPlayerView);
+//        mFullScreenDialog.addContentView(exoPlayerView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+//        mExoPlayerFullscreen = true;
+//        mFullScreenDialog.show();
+//    }
+//
+//
+//    private void closeFullscreenDialog() {
+//
+//        ((ViewGroup) exoPlayerView.getParent()).removeView(exoPlayerView);
+//
+//        mExoPlayerFullscreen = false;
+//        mFullScreenDialog.dismiss();
+//    }
+
+
+//    @Override
+//    public void onResume() {
+//        super.onResume();
+//        initExoPlayer();
+//
+//    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (exoPlayerView != null && exoPlayerView.getPlayer() != null) {
+            mResumeWindow = exoPlayerView.getPlayer().getCurrentWindowIndex();
+            mResumePosition = Math.max(0, exoPlayerView.getPlayer().getCurrentPosition());
+
+            mPlayingState = exoPlayer.getPlayWhenReady();
+            exoPlayerView.getPlayer().release();
+        }
+
+        if (mFullScreenDialog != null)
+            mFullScreenDialog.dismiss();
+    }
 
 }

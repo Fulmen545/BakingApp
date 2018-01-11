@@ -31,6 +31,7 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
     private static final String POSITION = "position";
     private static final String RECEPT_POSITION = "recept_position";
     private static final String RECIPE_NAME = "rec_name";
+    private static final String STEP_LIST = "step_list";
     private static final String STEP_COUNT = "step_count";
     private static final String TAG = "StepListFragment";
     private String recipePosition;
@@ -50,14 +51,19 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         ButterKnife.bind(this, view);
-
-        Bundle bundle = this.getArguments();
-        recipePosition = Integer.toString(bundle.getInt(POSITION, 0));
-        recipeTitle = bundle.getString(RECIPE_NAME);
-        getActivity().setTitle(recipeTitle);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
-        mRecipeNamesList.setLayoutManager(layoutManager);
-        getStepTitles();
+        if (savedInstanceState != null){
+            recipePosition = savedInstanceState.getString(POSITION);
+            recipeTitle = savedInstanceState.getString(RECIPE_NAME);
+            recipeSteps = savedInstanceState.getStringArray(STEP_LIST);
+        } else {
+            Bundle bundle = this.getArguments();
+            recipePosition = Integer.toString(bundle.getInt(POSITION, 0));
+            recipeTitle = bundle.getString(RECIPE_NAME);
+            getActivity().setTitle(recipeTitle);
+            LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
+            mRecipeNamesList.setLayoutManager(layoutManager);
+            getStepTitles();
+        }
         mRecipeAdapter = new RecipeAdapter(recipeSteps, StepListFragment.this);
         mRecipeNamesList.setAdapter(mRecipeAdapter);
         Log.i(TAG, "RISO - Here is value: " + recipePosition);
@@ -72,6 +78,14 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(POSITION, recipePosition);
+        outState.putString(RECIPE_NAME, recipeTitle);
+        outState.putStringArray(STEP_LIST, recipeSteps);
     }
 
     private void getStepTitles() {
@@ -101,7 +115,7 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
 
     private void changeTo(Fragment fragment, int containerViewId) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-//        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         fragmentManager.beginTransaction().replace(containerViewId, fragment).addToBackStack("tag1").commit();
     }
 
@@ -112,14 +126,14 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
         bundle.putString(RECEPT_POSITION, recipePosition);
         bundle.putString(RECIPE_NAME, recipeTitle);
         bundle.putInt(STEP_COUNT, recipeSteps.length);
-        if (listItem == 0) {
-            DetailFragment df = new DetailFragment();
-            df.setArguments(bundle);
-            changeTo(df, android.R.id.content);
-        } else {
-            StepsFragment sf = new StepsFragment();
-            sf.setArguments(bundle);
-            changeTo(sf, android.R.id.content);
-        }
+//        if (listItem == 0) {
+//            Intent intent = new Intent(getActivity(), DetailActivity.class);
+//            intent.putExtras(bundle);
+//            startActivity(intent);
+//        } else {
+            Intent intent = new Intent(getActivity(), StepActivity.class);
+            intent.putExtras(bundle);
+            startActivity(intent);
+//        }
     }
 }

@@ -23,10 +23,14 @@ public class MainActivity extends AppCompatActivity {
         frame.setId(android.R.id.content);
         setContentView(frame, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-        RecipeFragment fragment = new RecipeFragment();
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        android.support.v4.app.FragmentTransaction ft = fragmentManager.beginTransaction();
-        ft.add(android.R.id.content, fragment).commit();
+        if (savedInstanceState == null) {
+            RecipeFragment fragment = new RecipeFragment();
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            android.support.v4.app.FragmentTransaction ft = fragmentManager.beginTransaction();
+            ft.add(android.R.id.content, fragment).commit();
+        } else {
+            RecipeFragment fragment = (RecipeFragment) getSupportFragmentManager().findFragmentByTag("tag1");
+        }
     }
 
     @Override

@@ -1,20 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
+
+  <RelativeLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
+    <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+        android:id="@+id/playerView"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        >
+    </com.google.android.exoplayer2.ui.SimpleExoPlayerView>
+
 
     <TextView
+        android:id="@+id/stepTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/stepTitle"
-        tools:text="Step Title"
-        android:textSize="25dp"
         android:fontFamily="sans-serif"
         android:padding="10dp"
+        android:textColor="@color/colorPrimary"
+        android:textSize="25dp"
         android:textStyle="bold"
-        android:textColor="@color/colorPrimary"/>
+        tools:text="Step Title"
+        android:layout_below="@id/playerView"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -22,6 +34,9 @@
         android:id="@+id/stepDesc"
         android:padding="10dp"
         android:textSize="15dp"
+        android:layout_below="@id/stepTitle"
         tools:text="Here is dummy text for dummy preson to read"/>
 
-</LinearLayout>
+  </RelativeLayout>
+
+</ScrollView>
