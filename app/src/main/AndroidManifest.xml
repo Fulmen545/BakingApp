@@ -28,14 +28,14 @@
             android:syncable="true" />
 
         <activity android:name=".ExoTestActivity" />
-
         <activity android:name=".StepListActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-        <activity android:name=".DetailActivity"
-            android:parentActivityName=".StepListActivity" >
+        <activity
+            android:name=".DetailActivity"
+            android:parentActivityName=".StepListActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".StepListActivity" />
@@ -45,6 +45,19 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".StepListActivity" />
         </activity>
+
+        <receiver android:name=".IngredientsWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/ingredients_widget_provider_info" />
+        </receiver>
+        <!--<service-->
+            <!--android:name=".util.WidgetService"-->
+            <!--android:permission="android.permission.BIND_REMOTEVIEWS" />-->
     </application>
 
 </manifest>

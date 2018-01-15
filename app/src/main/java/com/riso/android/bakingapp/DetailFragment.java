@@ -1,5 +1,7 @@
 package com.riso.android.bakingapp;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -36,6 +38,10 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
     private static final String RECIPE_NAME = "rec_name";
     private static final String RECEPT_POSITION = "recept_position";
     private static final String STEP_COUNT = "step_count";
+    private static final String INGRED_ARRAY = "ingred_array";
+    private static final String WIDGET_INGR = "wg_ingred";
+    private static final String WIDGET_QUAN = "wg_quan";
+    private static final String WIDGET_MEAS = "wg_meas";
 
 
     @BindView(R.id.back_button)
@@ -50,6 +56,9 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
     private int stepCount;
     private IngredientItems[] mIngredientList;
     private IngredientsAdapter mIngredientAdapter;
+    private String wg_ingredient = "";
+    private String wg_quantity = "";
+    private String wg_measure = "";
 
     @Nullable
     @Override
@@ -75,15 +84,16 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
 //                getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
 //                getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK));
 //                getActivity().getSupportFragmentManager().beginTransaction().remove(DetailFragment.this).commit();
-                Bundle bundle = new Bundle();
-                bundle.putInt(POSITION, Integer.parseInt(recept_position));
-                bundle.putString(RECIPE_NAME, recipeName);
-//                StepListFragment slf = new StepListFragment();
-//                slf.setArguments(bundle);
-//                changeTo(slf, android.R.id.content);
-                Intent intent = new Intent(getActivity(), StepListActivity.class);
-                intent.putExtras(bundle);
-                startActivity(intent);
+//                Bundle bundle = new Bundle();
+//                bundle.putInt(POSITION, Integer.parseInt(recept_position));
+//                bundle.putString(RECIPE_NAME, recipeName);
+////                StepListFragment slf = new StepListFragment();
+////                slf.setArguments(bundle);
+////                changeTo(slf, android.R.id.content);
+//                Intent intent = new Intent(getActivity(), StepListActivity.class);
+//                intent.putExtras(bundle);
+//                startActivity(intent);
+                getActivity().finish();
 
             }
         });
@@ -110,6 +120,7 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
         LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         ingredientRv.setLayoutManager(layoutManager);
         getIngredientList();
+        updateIngredientsWidget(getContext());
         mIngredientAdapter = new IngredientsAdapter(mIngredientList, DetailFragment.this);
         ingredientRv.setAdapter(mIngredientAdapter);
     }
@@ -151,6 +162,40 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
                     mIngredientList[i] = item;
                     i++;
                 } while (c.moveToNext());
+            }
+        }
+    }
+
+    public void updateIngredientsWidget(Context context){
+        Intent intent = new Intent(context, IngredientsWidgetProvider.class);
+        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+//        Bundle bundle = new Bundle();
+//        bundle.putSerializable(INGRED_ARRAY, mIngredientList);
+//        intent.putExtras(bundle);
+        buildIngredientsForWidget();
+        intent.putExtra(INGRED_ARRAY, mIngredientList);
+        intent.putExtra(WIDGET_INGR,wg_ingredient);
+        intent.putExtra(WIDGET_QUAN,wg_quantity);
+        intent.putExtra(WIDGET_MEAS,wg_measure);
+//        intent.putExtra("size", mIngredientList.length);
+        int[] ids = AppWidgetManager.getInstance(context).getAppWidgetIds(new ComponentName(context, IngredientsWidgetProvider.class));
+        if(ids != null && ids.length > 0) {
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+            context.sendBroadcast(intent);
+        }
+    }
+
+    private void buildIngredientsForWidget(){
+        String delimeter = "\n";
+        int ingLength;
+        for (IngredientItems item : mIngredientList){
+            wg_ingredient += item.ingredient + delimeter;
+            ingLength=item.ingredient.length();
+            wg_quantity += item.quantity + delimeter;
+            wg_measure += item.measure + delimeter;
+            if (ingLength>29){
+                wg_quantity += delimeter;
+                wg_measure += delimeter;
             }
         }
     }
