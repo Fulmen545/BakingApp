@@ -14,18 +14,15 @@ public class DetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle bundle = this.getIntent().getExtras();
-//        int position = bundle.getInt(POSITION);
         FragmentManager fragmentManager = getSupportFragmentManager();
-        android.support.v4.app.FragmentTransaction ft = fragmentManager.beginTransaction();
-//        if (position == 0) {
+        if (savedInstanceState == null) {
+            android.support.v4.app.FragmentTransaction ft = fragmentManager.beginTransaction();
             DetailFragment df = new DetailFragment();
             df.setArguments(bundle);
             ft.add(android.R.id.content, df).commit();
-//        } else {
-//            StepsFragment sf = new StepsFragment();
-//            sf.setArguments(bundle);
-//            ft.add(android.R.id.content, sf).commit();
-//        }
+        } else {
+            fragmentManager.findFragmentByTag("tag1");
+        }
 
     }
 

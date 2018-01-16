@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -45,6 +46,7 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
     @BindView(R.id.rv_recipes)
     RecyclerView mRecipeNamesList;
     public RecipeAdapter mRecipeAdapter;
+    private boolean tabletSize;
 
 
     @Nullable
@@ -63,8 +65,15 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
         getActivity().setTitle(R.string.app_name);
         ButterKnife.bind(this, view);
         new GetRecipes().execute();
-        LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
-        mRecipeNamesList.setLayoutManager(layoutManager);
+        tabletSize = getResources().getBoolean(R.bool.isTablet);
+        if (!tabletSize) {
+            LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
+            mRecipeNamesList.setLayoutManager(layoutManager);
+        } else {
+            GridLayoutManager layoutManager = new GridLayoutManager(view.getContext(), 3);
+            mRecipeNamesList.setLayoutManager(layoutManager);
+        }
+
 
     }
 
@@ -91,11 +100,11 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
         getContext().getContentResolver().insert(RecipeColumns.RecipeEntry.CONTENT_URI_STEPS, cv);
     }
 
-    private void changeTo(Fragment fragment, int containerViewId) {
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        fragmentManager.beginTransaction().replace(containerViewId, fragment).addToBackStack("tag").commit();
-    }
+//    private void changeTo(Fragment fragment, int containerViewId) {
+//        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+//        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+//        fragmentManager.beginTransaction().replace(containerViewId, fragment).addToBackStack("tag").commit();
+//    }
 
     @Override
     public void onListItemClick(int listItem) {
@@ -173,7 +182,7 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            mRecipeAdapter = new RecipeAdapter(recipeNames, RecipeFragment.this);
+            mRecipeAdapter = new RecipeAdapter(recipeNames, RecipeFragment.this, false, 0, tabletSize);
             mRecipeNamesList.setAdapter(mRecipeAdapter);
         }
     }

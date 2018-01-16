@@ -33,6 +33,7 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
     private static final String RECIPE_NAME = "rec_name";
     private static final String STEP_LIST = "step_list";
     private static final String STEP_COUNT = "step_count";
+    private static final String STEP_PRESSED = "step_pressed";
     private static final String TAG = "StepListFragment";
     private String recipePosition;
     @BindView(R.id.rv_recipes)
@@ -40,6 +41,10 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
     public RecipeAdapter mRecipeAdapter;
     public String[] recipeSteps;
     private String recipeTitle;
+    private boolean tabletSize;
+    private int stepPressed = 0;
+
+
 
     @Nullable
     @Override
@@ -51,10 +56,13 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         ButterKnife.bind(this, view);
+        tabletSize = getResources().getBoolean(R.bool.isTablet);
+
         if (savedInstanceState != null){
             recipePosition = savedInstanceState.getString(POSITION);
             recipeTitle = savedInstanceState.getString(RECIPE_NAME);
             recipeSteps = savedInstanceState.getStringArray(STEP_LIST);
+            stepPressed = savedInstanceState.getInt(STEP_PRESSED);
         } else {
             Bundle bundle = this.getArguments();
             recipePosition = Integer.toString(bundle.getInt(POSITION, 0));
@@ -64,7 +72,7 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
             mRecipeNamesList.setLayoutManager(layoutManager);
             getStepTitles();
         }
-        mRecipeAdapter = new RecipeAdapter(recipeSteps, StepListFragment.this);
+        mRecipeAdapter = new RecipeAdapter(recipeSteps, StepListFragment.this, true, stepPressed, tabletSize);
         mRecipeNamesList.setAdapter(mRecipeAdapter);
         Log.i(TAG, "RISO - Here is value: " + recipePosition);
     }
@@ -86,6 +94,7 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
         outState.putString(POSITION, recipePosition);
         outState.putString(RECIPE_NAME, recipeTitle);
         outState.putStringArray(STEP_LIST, recipeSteps);
+        outState.putInt(STEP_PRESSED, stepPressed);
     }
 
     private void getStepTitles() {
@@ -113,27 +122,39 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
         }
     }
 
-    private void changeTo(Fragment fragment, int containerViewId) {
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        fragmentManager.beginTransaction().replace(containerViewId, fragment).addToBackStack("tag1").commit();
-    }
+//    private void changeTo(Fragment fragment, int containerViewId) {
+//        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+//        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+//        fragmentManager.beginTransaction().replace(containerViewId, fragment).addToBackStack("tag1").commit();
+//    }
 
     @Override
     public void onListItemClick(int listItem) {
+        stepPressed=listItem;
         Bundle bundle = new Bundle();
         bundle.putInt(POSITION, listItem);
         bundle.putString(RECEPT_POSITION, recipePosition);
         bundle.putString(RECIPE_NAME, recipeTitle);
         bundle.putInt(STEP_COUNT, recipeSteps.length);
-//        if (listItem == 0) {
-//            Intent intent = new Intent(getActivity(), DetailActivity.class);
-//            intent.putExtras(bundle);
-//            startActivity(intent);
-//        } else {
+        if (tabletSize){
+            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+            if (listItem == 0){
+                DetailFragment detailFragment = new DetailFragment();
+                detailFragment.setArguments(bundle);
+                fragmentManager.beginTransaction()
+                        .replace(R.id.detail_container, detailFragment, "tag1")
+                        .commit();
+            } else {
+                StepsFragment stepsFragment = new StepsFragment();
+                stepsFragment.setArguments(bundle);
+                fragmentManager.beginTransaction()
+                        .replace(R.id.detail_container, stepsFragment, "tag1")
+                        .commit();
+            }
+        } else {
             Intent intent = new Intent(getActivity(), StepActivity.class);
             intent.putExtras(bundle);
             startActivity(intent);
-//        }
+        }
     }
 }

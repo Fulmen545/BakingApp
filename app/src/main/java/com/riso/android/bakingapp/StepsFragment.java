@@ -107,6 +107,7 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
         super.onViewCreated(view, savedInstanceState);
         getActivity().setTitle(R.string.app_name);
         ButterKnife.bind(this, view);
+        boolean tabletSize = getResources().getBoolean(R.bool.isTablet);
         if (savedInstanceState != null) {
             mResumeWindow = savedInstanceState.getInt(STATE_RESUME_WINDOW);
             mResumePosition = savedInstanceState.getLong(STATE_RESUME_POSITION);
@@ -119,66 +120,75 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
         stepCount = bundle.getInt(STEP_COUNT);
         recipeName = bundle.getString(RECIPE_NAME);
         position = bundle.getInt(POSITION, 0);
-        stepPosition = Integer.toString(position - 1);
+//        if (tabletSize){
+//            stepPosition = Integer.toString(position);
+//        } else {
+            stepPosition = Integer.toString(position - 1);
+//        }
         recept_position = bundle.getString(RECEPT_POSITION);
-        if (position == 1) {
-            back_btn.setText(getString(R.string.ingredients));
-        } else if (position == 2) {
-            back_btn.setText(getString(R.string.rec_introduction));
+        if (tabletSize) {
+            back_btn.setVisibility(View.GONE);
+            forward_btn.setVisibility(View.GONE);
         } else {
-            stepBack = position - 2;
-            back_btn.setText(getString(R.string.step_number) + " " + stepBack);
-        }
-        back_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (position == 1) {
-                    Bundle bundle = new Bundle();
-                    bundle.putInt(POSITION, position-1);
-                    bundle.putString(RECEPT_POSITION, recept_position);
-                    bundle.putString(RECIPE_NAME, recipeName);
-                    bundle.putInt(STEP_COUNT, stepCount);
-                    DetailFragment df = new DetailFragment();
-                    df.setArguments(bundle);
-                    changeTo(df, android.R.id.content, "tag1");
+            if (position == 1) {
+                back_btn.setText(getString(R.string.ingredients));
+            } else if (position == 2) {
+                back_btn.setText(getString(R.string.rec_introduction));
+            } else {
+                stepBack = position - 2;
+                back_btn.setText(getString(R.string.step_number) + " " + stepBack);
+            }
+            back_btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (position == 1) {
+                        Bundle bundle = new Bundle();
+                        bundle.putInt(POSITION, position - 1);
+                        bundle.putString(RECEPT_POSITION, recept_position);
+                        bundle.putString(RECIPE_NAME, recipeName);
+                        bundle.putInt(STEP_COUNT, stepCount);
+                        DetailFragment df = new DetailFragment();
+                        df.setArguments(bundle);
+                        changeTo(df, android.R.id.content, "tag1");
 //                    Intent intent = new Intent(getActivity(), DetailActivity.class);
 //                    intent.putExtras(bundle);
 //                    startActivity(intent);
-                } else {
-                    Bundle bundle = new Bundle();
-                    bundle.putInt(POSITION, position-1);
-                    bundle.putString(RECEPT_POSITION, recept_position);
-                    bundle.putString(RECIPE_NAME, recipeName);
-                    bundle.putInt(STEP_COUNT, stepCount);
-                    StepsFragment sf = new StepsFragment();
-                    sf.setArguments(bundle);
-                    changeTo(sf, android.R.id.content, "tag1");
+                    } else {
+                        Bundle bundle = new Bundle();
+                        bundle.putInt(POSITION, position - 1);
+                        bundle.putString(RECEPT_POSITION, recept_position);
+                        bundle.putString(RECIPE_NAME, recipeName);
+                        bundle.putInt(STEP_COUNT, stepCount);
+                        StepsFragment sf = new StepsFragment();
+                        sf.setArguments(bundle);
+                        changeTo(sf, android.R.id.content, "tag1");
 //                    Intent intent = new Intent(getActivity(), StepActivity.class);
 //                    intent.putExtras(bundle);
 //                    startActivity(intent);
-                }
-            }
-        });
-        if (stepCount == position+1) {
-            forward_btn.setBackgroundColor(Color.parseColor("#bdbdbd"));
-        } else {
-            forward_btn.setText(getString(R.string.step_number) + " " + position);
-            forward_btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Bundle bundle = new Bundle();
-                    bundle.putInt(POSITION, position + 1);
-                    bundle.putString(RECEPT_POSITION, recept_position);
-                    bundle.putString(RECIPE_NAME, recipeName);
-                    bundle.putInt(STEP_COUNT, stepCount);
-                    StepsFragment sf = new StepsFragment();
-                    sf.setArguments(bundle);
-                    changeTo(sf, android.R.id.content, "tag1");
-//                    Intent intent = new Intent(getActivity(), StepActivity.class);
-//                    intent.putExtras(bundle);
-//                    startActivity(intent);
+                    }
                 }
             });
+            if (stepCount == position + 1) {
+                forward_btn.setBackgroundColor(Color.parseColor("#bdbdbd"));
+            } else {
+                forward_btn.setText(getString(R.string.step_number) + " " + position);
+                forward_btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Bundle bundle = new Bundle();
+                        bundle.putInt(POSITION, position + 1);
+                        bundle.putString(RECEPT_POSITION, recept_position);
+                        bundle.putString(RECIPE_NAME, recipeName);
+                        bundle.putInt(STEP_COUNT, stepCount);
+                        StepsFragment sf = new StepsFragment();
+                        sf.setArguments(bundle);
+                        changeTo(sf, android.R.id.content, "tag1");
+//                    Intent intent = new Intent(getActivity(), StepActivity.class);
+//                    intent.putExtras(bundle);
+//                    startActivity(intent);
+                    }
+                });
+            }
         }
         getActivity().setTitle(recipeName);
 

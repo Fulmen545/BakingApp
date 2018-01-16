@@ -12,12 +12,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
-    @BindView(R.id.title) TextView title;
+//    @BindView(R.id.title) TextView title;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.step_list_tablet);
         ButterKnife.bind(this);
         FrameLayout frame = new FrameLayout(this);
         frame.setId(android.R.id.content);

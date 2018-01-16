@@ -28,7 +28,8 @@
             android:syncable="true" />
 
         <activity android:name=".ExoTestActivity" />
-        <activity android:name=".StepListActivity">
+        <activity android:name=".StepListActivity"
+            android:configChanges="orientation|screenSize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />

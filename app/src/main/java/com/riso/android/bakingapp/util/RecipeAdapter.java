@@ -2,12 +2,15 @@ package com.riso.android.bakingapp.util;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import butterknife.BindView;
@@ -24,11 +27,16 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     final private ListItemClickListener mOnClickListener;
 
     private String[] mRecipeNames;
-    public boolean steps = false;
+    public boolean steps;
+    private int stepPressed;
+    boolean tablet;
 
-    public RecipeAdapter(String[] recipeNames, ListItemClickListener mOnClickListener) {
+    public RecipeAdapter(String[] recipeNames, ListItemClickListener mOnClickListener, boolean steps, int stepPressed, boolean tablet) {
         mRecipeNames = recipeNames;
         this.mOnClickListener = mOnClickListener;
+        this.steps = steps;
+        this.stepPressed = stepPressed;
+        this.tablet = tablet;
     }
 
     public interface ListItemClickListener {
@@ -64,6 +72,8 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     class RecipeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @BindView(R.id.recipeTitle)
         TextView recipeNameTv;
+        @BindView(R.id.recipeCardLayout)
+        LinearLayout linearLayout;
 
         public RecipeViewHolder(View itemView) {
             super(itemView);
@@ -72,10 +82,19 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         }
 
         void bind(int listIndex) {
-            if (mRecipeNames[listIndex].startsWith("Step")|| mRecipeNames[listIndex].startsWith("Recipe Introduction")) {
+            if (steps && tablet) {
+                if (listIndex == stepPressed) {
+                    linearLayout.setBackgroundResource(R.drawable.pressed_round_edge);
+                    recipeNameTv.setTextColor(Color.WHITE);
+                } else {
+                    linearLayout.setBackgroundResource(R.drawable.round_edge);
+                    recipeNameTv.setTextColor(Color.DKGRAY);
+                }
+            }
+            if (mRecipeNames[listIndex].startsWith("Step") || mRecipeNames[listIndex].startsWith("Recipe Introduction")) {
                 recipeNameTv.setText(mRecipeNames[listIndex]);
                 recipeNameTv.setTextAppearance(itemView.getContext(), R.style.TitleSteps);
-            } else if (mRecipeNames[listIndex] == "Ingredients" ) {
+            } else if (mRecipeNames[listIndex] == "Ingredients") {
                 recipeNameTv.setText(mRecipeNames[listIndex]);
                 recipeNameTv.setTextAppearance(itemView.getContext(), R.style.Ingredients);
             } else {
@@ -87,6 +106,12 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         public void onClick(View v) {
             int clickedPosition = getAdapterPosition();
             mOnClickListener.onListItemClick(clickedPosition);
+            stepPressed=clickedPosition;
+//            if (steps) {
+//                v.setSelected(true);
+//            }
+            notifyDataSetChanged();
         }
     }
+
 }

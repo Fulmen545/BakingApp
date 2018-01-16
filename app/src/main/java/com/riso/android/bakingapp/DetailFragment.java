@@ -59,6 +59,7 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
     private String wg_ingredient = "";
     private String wg_quantity = "";
     private String wg_measure = "";
+    private boolean tabletSize;
 
     @Nullable
     @Override
@@ -77,10 +78,15 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
         recipeName = bundle.getString(RECIPE_NAME);
         position = bundle.getInt(POSITION, 0);
         recept_position = bundle.getString(RECEPT_POSITION);
-        back_btn.setText(getString(R.string.step_list));
-        back_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        tabletSize = getResources().getBoolean(R.bool.isTablet);
+        if (tabletSize) {
+            back_btn.setVisibility(View.GONE);
+            forward_btn.setVisibility(View.GONE);
+        } else {
+            back_btn.setText(getString(R.string.step_list));
+            back_btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 //                getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
 //                getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK));
 //                getActivity().getSupportFragmentManager().beginTransaction().remove(DetailFragment.this).commit();
@@ -93,29 +99,30 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
 //                Intent intent = new Intent(getActivity(), StepListActivity.class);
 //                intent.putExtras(bundle);
 //                startActivity(intent);
-                getActivity().finish();
+                    getActivity().finish();
 
-            }
-        });
-        forward_btn.setText(getString(R.string.rec_introduction));
-        forward_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Bundle bundle = new Bundle();
-                bundle.putInt(POSITION, position+1);
-                bundle.putString(RECEPT_POSITION, recept_position);
-                bundle.putString(RECIPE_NAME, recipeName);
-                bundle.putInt(STEP_COUNT, stepCount);
-                StepsFragment sf = new StepsFragment();
-                sf.setArguments(bundle);
-                changeTo(sf, android.R.id.content, "tag1");
+                }
+            });
+            forward_btn.setText(getString(R.string.rec_introduction));
+            forward_btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Bundle bundle = new Bundle();
+                    bundle.putInt(POSITION, position + 1);
+                    bundle.putString(RECEPT_POSITION, recept_position);
+                    bundle.putString(RECIPE_NAME, recipeName);
+                    bundle.putInt(STEP_COUNT, stepCount);
+                    StepsFragment sf = new StepsFragment();
+                    sf.setArguments(bundle);
+                    changeTo(sf, android.R.id.content, "tag1");
 //                Intent intent = new Intent(view.getContext(), ExoTestActivity.class);
 //                startActivity(intent);
 //                Intent intent = new Intent(getActivity(), StepActivity.class);
 //                intent.putExtras(bundle);
 //                startActivity(intent);
-            }
-        });
+                }
+            });
+        }
         getActivity().setTitle(recipeName);
         LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         ingredientRv.setLayoutManager(layoutManager);
@@ -166,7 +173,7 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
         }
     }
 
-    public void updateIngredientsWidget(Context context){
+    public void updateIngredientsWidget(Context context) {
         Intent intent = new Intent(context, IngredientsWidgetProvider.class);
         intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
 //        Bundle bundle = new Bundle();
@@ -174,26 +181,26 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
 //        intent.putExtras(bundle);
         buildIngredientsForWidget();
         intent.putExtra(INGRED_ARRAY, mIngredientList);
-        intent.putExtra(WIDGET_INGR,wg_ingredient);
-        intent.putExtra(WIDGET_QUAN,wg_quantity);
-        intent.putExtra(WIDGET_MEAS,wg_measure);
+        intent.putExtra(WIDGET_INGR, wg_ingredient);
+        intent.putExtra(WIDGET_QUAN, wg_quantity);
+        intent.putExtra(WIDGET_MEAS, wg_measure);
 //        intent.putExtra("size", mIngredientList.length);
         int[] ids = AppWidgetManager.getInstance(context).getAppWidgetIds(new ComponentName(context, IngredientsWidgetProvider.class));
-        if(ids != null && ids.length > 0) {
+        if (ids != null && ids.length > 0) {
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
             context.sendBroadcast(intent);
         }
     }
 
-    private void buildIngredientsForWidget(){
+    private void buildIngredientsForWidget() {
         String delimeter = "\n";
         int ingLength;
-        for (IngredientItems item : mIngredientList){
+        for (IngredientItems item : mIngredientList) {
             wg_ingredient += item.ingredient + delimeter;
-            ingLength=item.ingredient.length();
+            ingLength = item.ingredient.length();
             wg_quantity += item.quantity + delimeter;
             wg_measure += item.measure + delimeter;
-            if (ingLength>29){
+            if (ingLength > 29) {
                 wg_quantity += delimeter;
                 wg_measure += delimeter;
             }
