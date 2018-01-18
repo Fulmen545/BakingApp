@@ -8,4 +8,7 @@
     <string name="step_number">Step</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
+    <string name="refresh">Refresh</string>
+    <string name="dialog_msg1">Connect to internet and click on Refresh</string>
+    <string name="dialog_msg2">For exiting Baking app click on Cancel</string>
 </resources>

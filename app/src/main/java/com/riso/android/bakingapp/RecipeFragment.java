@@ -2,17 +2,22 @@ package com.riso.android.bakingapp;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,14 +69,21 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
         super.onViewCreated(view, savedInstanceState);
         getActivity().setTitle(R.string.app_name);
         ButterKnife.bind(this, view);
-        new GetRecipes().execute();
         tabletSize = getResources().getBoolean(R.bool.isTablet);
-        if (!tabletSize) {
-            LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
-            mRecipeNamesList.setLayoutManager(layoutManager);
+
+        if (!isOnline() && isDbEmpty()) {
+            internetDialog();
         } else {
-            GridLayoutManager layoutManager = new GridLayoutManager(view.getContext(), 3);
-            mRecipeNamesList.setLayoutManager(layoutManager);
+            if (!isOnline())
+                internetDialogWithDB();
+            new GetRecipes().execute();
+            if (!tabletSize) {
+                LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
+                mRecipeNamesList.setLayoutManager(layoutManager);
+            } else {
+                GridLayoutManager layoutManager = new GridLayoutManager(view.getContext(), 3);
+                mRecipeNamesList.setLayoutManager(layoutManager);
+            }
         }
 
 
@@ -132,50 +144,84 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
         }
     }
 
+    public void getRecipeNames() {
+        Cursor c = getActivity().getContentResolver().query(RecipeColumns.RecipeEntry.CONTENT_URI_INGREDIENTS,
+                new String[]{"DISTINCT " + RecipeColumns.RecipeEntry.RECIPE_NAME},
+                null,
+                null,
+                RecipeColumns.RecipeEntry._ID);
+        if (c.getCount() != 0) {
+            recipeNames = new String[c.getCount()];
+            int i = 0;
+            if (c.moveToFirst()) {
+                do {
+                    recipeNames[i] = c.getString(c.getColumnIndex(RecipeColumns.RecipeEntry.RECIPE_NAME));
+                    i++;
+                } while (c.moveToNext());
+            }
+        }
+    }
+
+    private boolean isDbEmpty() {
+        Cursor c = getActivity().getContentResolver().query(RecipeColumns.RecipeEntry.CONTENT_URI_INGREDIENTS,
+                new String[]{RecipeColumns.RecipeEntry.RECIPE_NAME},
+                null,
+                null,
+                RecipeColumns.RecipeEntry._ID);
+        if (c.getCount() != 0) {
+            return false;
+        }
+        return true;
+    }
+
     private class GetRecipes extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void... params) {
-            HttpHandler hh = new HttpHandler();
-            String movieUrl = "https://d17h27t6h515a5.cloudfront.net/topher/2017/May/59121517_baking/baking.json";
-            URL url;
-            String jsonStr = null;
-            try {
-                url = new URL(movieUrl);
-                jsonStr = hh.makeServiceCall(url);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            if (jsonStr != null) {
+            if (isOnline()) {
+                HttpHandler hh = new HttpHandler();
+                String movieUrl = "https://d17h27t6h515a5.cloudfront.net/topher/2017/May/59121517_baking/baking.json";
+                URL url;
+                String jsonStr = null;
                 try {
-//                    JSONObject jsonObject = new JSONObject(jsonStr);
-                    JSONArray recipes = new JSONArray(jsonStr);
-                    recipeNames = new String[recipes.length()];
-                    for (int i = 0; i < recipes.length(); i++) {
-                        String mRecipeName = recipes.getJSONObject(i).getString("name");
-                        recipeNames[i] = mRecipeName;
-                        if (!isInsideDb(mRecipeName)) {
-                            String mRecipeID = Integer.toString(i);
-                            JSONObject o = recipes.getJSONObject(i);
-                            JSONArray ingredients = o.getJSONArray("ingredients");
-                            for (int j = 0; j < ingredients.length(); j++) {
-                                String mIngredID = Integer.toString(j);
-                                JSONObject ing = ingredients.getJSONObject(j);
-                                insertIngredients(mRecipeID, mRecipeName, mIngredID, ing.getString("quantity"), ing.getString("measure"), ing.getString("ingredient"));
-                            }
-                            JSONArray steps = o.getJSONArray("steps");
-                            for (int k = 0; k < steps.length(); k++) {
-                                String mStepID = Integer.toString(k);
-                                JSONObject stp = steps.getJSONObject(k);
-                                insertSteps(mRecipeID, mStepID, stp.getString("shortDescription"),
-                                        stp.getString("description"), stp.getString("videoURL"));
-                            }
-                        }
-                    }
-                } catch (JSONException e) {
+                    url = new URL(movieUrl);
+                    jsonStr = hh.makeServiceCall(url);
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
+
+                if (jsonStr != null) {
+                    try {
+//                    JSONObject jsonObject = new JSONObject(jsonStr);
+                        JSONArray recipes = new JSONArray(jsonStr);
+                        recipeNames = new String[recipes.length()];
+                        for (int i = 0; i < recipes.length(); i++) {
+                            String mRecipeName = recipes.getJSONObject(i).getString("name");
+                            recipeNames[i] = mRecipeName;
+                            if (!isInsideDb(mRecipeName)) {
+                                String mRecipeID = Integer.toString(i);
+                                JSONObject o = recipes.getJSONObject(i);
+                                JSONArray ingredients = o.getJSONArray("ingredients");
+                                for (int j = 0; j < ingredients.length(); j++) {
+                                    String mIngredID = Integer.toString(j);
+                                    JSONObject ing = ingredients.getJSONObject(j);
+                                    insertIngredients(mRecipeID, mRecipeName, mIngredID, ing.getString("quantity"), ing.getString("measure"), ing.getString("ingredient"));
+                                }
+                                JSONArray steps = o.getJSONArray("steps");
+                                for (int k = 0; k < steps.length(); k++) {
+                                    String mStepID = Integer.toString(k);
+                                    JSONObject stp = steps.getJSONObject(k);
+                                    insertSteps(mRecipeID, mStepID, stp.getString("shortDescription"),
+                                            stp.getString("description"), stp.getString("videoURL"));
+                                }
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                getRecipeNames();
             }
             return null;
         }
@@ -185,5 +231,47 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
             mRecipeAdapter = new RecipeAdapter(recipeNames, RecipeFragment.this, false, 0, tabletSize);
             mRecipeNamesList.setAdapter(mRecipeAdapter);
         }
+
+
+    }
+
+    private void internetDialog() {
+        Log.w("Recipes", "Something went wrong");
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        String msg1 = getString(R.string.dialog_msg1);
+        String msg2 = getString(R.string.dialog_msg2);
+        builder.setMessage(msg1 + "\n" + msg2)
+                .setTitle("No internet connection")
+                .setNeutralButton(R.string.refresh, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = getActivity().getIntent();
+                        getActivity().finish();
+                        startActivity(intent);
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+//                        dialog.dismiss();
+                        getActivity().finish();
+                    }
+                })
+                .show();
+    }
+
+    private void internetDialogWithDB() {
+        Log.w("Recipes", "Something went wrong");
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage("Recipes will be loaded from database")
+                .setTitle("No internet connection")
+                .setPositiveButton(android.R.string.yes, null)
+                .show();
+    }
+
+    private boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }

@@ -2,10 +2,13 @@ package com.riso.android.bakingapp;
 
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -20,6 +23,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -75,7 +79,7 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
     TextView back_btn;
     @BindView(R.id.forward_button)
     TextView forward_btn;
-//    @BindView(R.id.steps_rv)
+    //    @BindView(R.id.steps_rv)
 //    RecyclerView stepsRv;
     private StepItems[] mStepArray;
     private StepsAdapter mStepAdapter;
@@ -86,6 +90,8 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
     TextView stepDesc_tv;
     @BindView(R.id.playerView)
     SimpleExoPlayerView exoPlayerView;
+    @BindView(R.id.noVideo)
+    ImageView noVideoImg;
     SimpleExoPlayer exoPlayer;
 
     private int mResumeWindow;
@@ -115,7 +121,8 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
             mResumeWindow = savedInstanceState.getInt(STATE_RESUME_WINDOW);
             mResumePosition = savedInstanceState.getLong(STATE_RESUME_POSITION);
             mExoPlayerFullscreen = savedInstanceState.getBoolean(STATE_PLAYER_FULLSCREEN);
-            mPlayingState = savedInstanceState.getBoolean(STATE_PLAYER_PLAYING);;
+            mPlayingState = savedInstanceState.getBoolean(STATE_PLAYER_PLAYING);
+            ;
         } else {
             mPlayingState = false;
         }
@@ -126,7 +133,7 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
 //        if (tabletSize){
 //            stepPosition = Integer.toString(position);
 //        } else {
-            stepPosition = Integer.toString(position - 1);
+        stepPosition = Integer.toString(position - 1);
 //        }
         recept_position = bundle.getString(RECEPT_POSITION);
         if (tabletSize) {
@@ -211,10 +218,11 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
 
     }
 
-    public void initExoPlayer(){
-        if (mStepArray[0].url.isEmpty())
+    public void initExoPlayer() {
+        if (mStepArray[0].url.isEmpty()) {
             exoPlayerView.setVisibility(View.GONE);
-        else {
+        } else {
+            if (isOnline()) {
 //            try {
 //                BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 //                TrackSelector trackSelector = new DefaultTrackSelector(new AdaptiveTrackSelection.Factory(bandwidthMeter));
@@ -237,6 +245,10 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
 //            }
 //            ExoPlayerSingleton.getInstance().prepareExoPlayer(getContext(), videoUri, exoPlayerView);
 //            ExoPlayerSingleton.getInstance().goForeground();
+            } else {
+                exoPlayerView.setVisibility(View.GONE);
+                noVideoImg.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -316,11 +328,11 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        if (mStepArray[0].url.isEmpty()){
+        if (mStepArray[0].url.isEmpty()) {
             return;
         }
 
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE && !tabletSize) {
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE && !tabletSize && isOnline()) {
             Intent intent = new Intent(getContext(), FullScreenVideoActivity.class);
             intent.putExtra(URL, mStepArray[0].url);
             intent.putExtra(STATE_RESUME_POSITION, Math.max(0, exoPlayerView.getPlayer().getCurrentPosition()));
@@ -330,7 +342,7 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
     }
 
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
         ExoPlayerSingleton.getInstance().releasePlayer();
     }
@@ -339,10 +351,17 @@ public class StepsFragment extends Fragment implements StepsAdapter.ListItemClic
     public void onResume() {
         super.onResume();
 
-        if (exoPlayerView != null){
+        if (exoPlayerView != null) {
             ExoPlayerSingleton.getInstance().prepareExoPlayer(getContext(),
                     Uri.parse(mStepArray[0].url), exoPlayerView);
             ExoPlayerSingleton.getInstance().goForeground();
         }
+    }
+
+    private boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }
