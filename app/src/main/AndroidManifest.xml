@@ -28,7 +28,8 @@
             android:syncable="true" />
 
         <activity android:name=".ExoTestActivity" />
-        <activity android:name=".StepListActivity"
+        <activity
+            android:name=".StepListActivity"
             android:configChanges="orientation|screenSize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -41,7 +42,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".StepListActivity" />
         </activity>
-        <activity android:name=".StepActivity">
+        <activity android:name=".StepActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".StepListActivity" />
@@ -56,9 +58,13 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/ingredients_widget_provider_info" />
         </receiver>
-        <!--<service-->
-            <!--android:name=".util.WidgetService"-->
-            <!--android:permission="android.permission.BIND_REMOTEVIEWS" />-->
+        <!-- <service -->
+        <!-- android:name=".util.WidgetService" -->
+        <!-- android:permission="android.permission.BIND_REMOTEVIEWS" /> -->
+        <activity android:name=".FullScreenVideoActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="landscape"
+            android:theme="@style/FullscreenTheme"/>
     </application>
 
 </manifest>
