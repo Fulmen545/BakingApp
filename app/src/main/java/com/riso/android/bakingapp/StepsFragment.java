@@ -1,7 +1,6 @@
 package com.riso.android.bakingapp;
 
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -24,6 +23,7 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.riso.android.bakingapp.data.RecipeColumns;
 import com.riso.android.bakingapp.data.StepItems;
 import com.riso.android.bakingapp.util.ExoPlayerSingleton;
+import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -169,9 +169,19 @@ public class StepsFragment extends Fragment {
     public void initExoPlayer() {
         if (mStepArray[0].url.isEmpty()) {
             exoPlayerView.setVisibility(View.GONE);
+            noVideoImg.setVisibility(View.VISIBLE);
+            if (mStepArray[0].thumbnail.isEmpty()){
+                noVideoImg.setBackgroundResource(R.drawable.novideo);
+            } else {
+                Picasso.with(getContext())
+                        .load(mStepArray[0].thumbnail)
+                        .placeholder(R.drawable.novideo)
+                        .into(noVideoImg);
+            }
         } else {
             if (!isOnline()) {
                 exoPlayerView.setVisibility(View.GONE);
+                noVideoImg.setBackgroundResource(R.drawable.no_internet);
                 noVideoImg.setVisibility(View.VISIBLE);
             }
         }
@@ -198,7 +208,7 @@ public class StepsFragment extends Fragment {
 
     private void getStepArray() {
         Cursor c = getActivity().getContentResolver().query(RecipeColumns.RecipeEntry.CONTENT_URI_STEPS,
-                new String[]{RecipeColumns.RecipeEntry.STEP_TITLE, RecipeColumns.RecipeEntry.DESCRIPTION, RecipeColumns.RecipeEntry.URL},
+                new String[]{RecipeColumns.RecipeEntry.STEP_TITLE, RecipeColumns.RecipeEntry.DESCRIPTION, RecipeColumns.RecipeEntry.URL, RecipeColumns.RecipeEntry.THUMBNAIL},
                 RecipeColumns.RecipeEntry.RECIPE_ID + "=? AND " + RecipeColumns.RecipeEntry.STEP_ID + "=?",
                 new String[]{recept_position, stepPosition},
                 RecipeColumns.RecipeEntry._ID);
@@ -211,7 +221,8 @@ public class StepsFragment extends Fragment {
                     String cTitle = c.getString(c.getColumnIndex(RecipeColumns.RecipeEntry.STEP_TITLE));
                     String cDescription = c.getString(c.getColumnIndex(RecipeColumns.RecipeEntry.DESCRIPTION));
                     String cUrl = c.getString(c.getColumnIndex(RecipeColumns.RecipeEntry.URL));
-                    item = new StepItems(cTitle, cDescription, cUrl);
+                    String cThumb = c.getString(c.getColumnIndex(RecipeColumns.RecipeEntry.THUMBNAIL));
+                    item = new StepItems(cTitle, cDescription, cUrl, cThumb);
                     mStepArray[i] = item;
                     i++;
                 } while (c.moveToNext());

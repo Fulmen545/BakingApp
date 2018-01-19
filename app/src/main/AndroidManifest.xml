@@ -26,8 +26,6 @@
             android:authorities="com.riso.android.bakingapp"
             android:exported="false"
             android:syncable="true" />
-
-        <activity android:name=".ExoTestActivity" />
         <activity
             android:name=".StepListActivity"
             android:configChanges="orientation|screenSize">
@@ -58,9 +56,6 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/ingredients_widget_provider_info" />
         </receiver>
-        <!-- <service -->
-        <!-- android:name=".util.WidgetService" -->
-        <!-- android:permission="android.permission.BIND_REMOTEVIEWS" /> -->
         <activity android:name=".FullScreenVideoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="landscape"

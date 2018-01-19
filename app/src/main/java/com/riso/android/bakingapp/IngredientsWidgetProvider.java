@@ -1,5 +1,6 @@
 package com.riso.android.bakingapp;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
@@ -18,6 +19,7 @@ public class IngredientsWidgetProvider extends AppWidgetProvider {
     private static final String WIDGET_QUAN = "wg_quan";
     private static final String WIDGET_MEAS = "wg_meas";
     private  Parcelable[] mIngredientList;
+    private String ingMsq = "Go to Ingredients step to fill the widget";
     private String ingName = "Ingredients";
     private String quan = "";
     private String meas = "";
@@ -25,15 +27,22 @@ public class IngredientsWidgetProvider extends AppWidgetProvider {
 
     private void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
-
-        CharSequence widgetText = "Skuska";
-        IngredientItems[] ingItems;
-
-
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.ingredients_widget_provider);
-        views.setTextViewText(R.id.wg_ingredient_name, ingName);
+        if (ingName.equals("Ingredients")){
+            views.setTextViewText(R.id.wg_ingredient_name, ingMsq);
+        } else {
+            views.setTextViewText(R.id.wg_ingredient_name, ingName);
+        }
         views.setTextViewText(R.id.wg_quantity, quan);
         views.setTextViewText(R.id.wg_measure, meas);
+        Intent mainIntent;
+//        if (ingName.equals("Ingredients")) {
+            mainIntent = new Intent(context, MainActivity.class);
+//        } else {
+//            mainIntent = new Intent(context, DetailActivity.class);
+////        }
+        PendingIntent mainPendingIntent = PendingIntent.getActivity(context, 0, mainIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        views.setOnClickPendingIntent(R.id.wg_ingredient_name, mainPendingIntent);
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
 

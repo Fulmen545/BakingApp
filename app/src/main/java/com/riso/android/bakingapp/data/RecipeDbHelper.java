@@ -35,7 +35,8 @@ public class RecipeDbHelper extends SQLiteOpenHelper{
                 RecipeColumns.RecipeEntry.STEP_ID + " TEXT NOT NULL, " +
                 RecipeColumns.RecipeEntry.STEP_TITLE + " TEXT NOT NULL, " +
                 RecipeColumns.RecipeEntry.DESCRIPTION + " TEXT NOT NULL, " +
-                RecipeColumns.RecipeEntry.URL + " TEXT  " +
+                RecipeColumns.RecipeEntry.URL + " TEXT,  " +
+                RecipeColumns.RecipeEntry.THUMBNAIL + " TEXT  " +
                 "); ";
 
         db.execSQL(SQL_CREATE_STEPS_TABLE);

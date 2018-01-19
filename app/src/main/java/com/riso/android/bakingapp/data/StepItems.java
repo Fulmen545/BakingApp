@@ -8,10 +8,12 @@ public class StepItems {
     public final String stepTitle;
     public final String description;
     public final String url;
+    public final String thumbnail;
 
-    public StepItems(String stepTitle, String description, String url) {
+    public StepItems(String stepTitle, String description, String url, String thumbnail) {
         this.stepTitle = stepTitle;
         this.description = description;
         this.url = url;
+        this.thumbnail = thumbnail;
     }
 }

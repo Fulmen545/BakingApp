@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
             android.support.v4.app.FragmentTransaction ft = fragmentManager.beginTransaction();
             ft.add(android.R.id.content, fragment).commit();
         } else {
-            RecipeFragment fragment = (RecipeFragment) getSupportFragmentManager().findFragmentByTag("tag1");
+             RecipeFragment fragment = (RecipeFragment) getSupportFragmentManager().findFragmentByTag("tag1");
         }
     }
 

@@ -100,13 +100,14 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
     }
 
     public void insertSteps(String recipeID, String stepID, String stepTitle, String description,
-                            String url) {
+                            String url, String thumb) {
         ContentValues cv = new ContentValues();
         cv.put(RecipeColumns.RecipeEntry.RECIPE_ID, recipeID);
         cv.put(RecipeColumns.RecipeEntry.STEP_ID, stepID);
         cv.put(RecipeColumns.RecipeEntry.STEP_TITLE, stepTitle);
         cv.put(RecipeColumns.RecipeEntry.DESCRIPTION, description);
         cv.put(RecipeColumns.RecipeEntry.URL, url);
+        cv.put(RecipeColumns.RecipeEntry.THUMBNAIL, thumb);
         getContext().getContentResolver().insert(RecipeColumns.RecipeEntry.CONTENT_URI_STEPS, cv);
     }
 
@@ -200,7 +201,7 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
                                     String mStepID = Integer.toString(k);
                                     JSONObject stp = steps.getJSONObject(k);
                                     insertSteps(mRecipeID, mStepID, stp.getString("shortDescription"),
-                                            stp.getString("description"), stp.getString("videoURL"));
+                                            stp.getString("description"), stp.getString("videoURL"), stp.getString("thumbnailURL"));
                                 }
                             }
                         }

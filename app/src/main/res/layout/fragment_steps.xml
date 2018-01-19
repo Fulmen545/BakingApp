@@ -26,7 +26,6 @@
                 android:id="@+id/noVideo"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/video_height"
-                android:src="@drawable/no_internet"
                 android:visibility="gone"
                 android:layout_below="@id/playerView"/>
 
