@@ -87,18 +87,6 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
             back_btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-//                getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
-//                getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK));
-//                getActivity().getSupportFragmentManager().beginTransaction().remove(DetailFragment.this).commit();
-//                Bundle bundle = new Bundle();
-//                bundle.putInt(POSITION, Integer.parseInt(recept_position));
-//                bundle.putString(RECIPE_NAME, recipeName);
-////                StepListFragment slf = new StepListFragment();
-////                slf.setArguments(bundle);
-////                changeTo(slf, android.R.id.content);
-//                Intent intent = new Intent(getActivity(), StepListActivity.class);
-//                intent.putExtras(bundle);
-//                startActivity(intent);
                     getActivity().finish();
 
                 }
@@ -115,11 +103,6 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
                     StepsFragment sf = new StepsFragment();
                     sf.setArguments(bundle);
                     changeTo(sf, android.R.id.content, "tag1");
-//                Intent intent = new Intent(view.getContext(), ExoTestActivity.class);
-//                startActivity(intent);
-//                Intent intent = new Intent(getActivity(), StepActivity.class);
-//                intent.putExtras(bundle);
-//                startActivity(intent);
                 }
             });
         }
@@ -135,13 +118,6 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
     @Override
     public void onListItemClick(int listItem) {
     }
-
-//    private void changeTo(Fragment fragment, int containerViewId) {
-//        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-////        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-//        fragmentManager.beginTransaction().replace(containerViewId, fragment).commit();
-//        getActivity().getSupportFragmentManager().beginTransaction().remove(DetailFragment.this).commit();
-//    }
 
     public void changeTo(Fragment fragment, int containerViewId, String tag) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
@@ -176,15 +152,11 @@ public class DetailFragment extends Fragment implements IngredientsAdapter.ListI
     public void updateIngredientsWidget(Context context) {
         Intent intent = new Intent(context, IngredientsWidgetProvider.class);
         intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-//        Bundle bundle = new Bundle();
-//        bundle.putSerializable(INGRED_ARRAY, mIngredientList);
-//        intent.putExtras(bundle);
         buildIngredientsForWidget();
         intent.putExtra(INGRED_ARRAY, mIngredientList);
         intent.putExtra(WIDGET_INGR, wg_ingredient);
         intent.putExtra(WIDGET_QUAN, wg_quantity);
         intent.putExtra(WIDGET_MEAS, wg_measure);
-//        intent.putExtra("size", mIngredientList.length);
         int[] ids = AppWidgetManager.getInstance(context).getAppWidgetIds(new ComponentName(context, IngredientsWidgetProvider.class));
         if (ids != null && ids.length > 0) {
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);

@@ -7,12 +7,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -112,20 +110,11 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
         getContext().getContentResolver().insert(RecipeColumns.RecipeEntry.CONTENT_URI_STEPS, cv);
     }
 
-//    private void changeTo(Fragment fragment, int containerViewId) {
-//        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-//        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-//        fragmentManager.beginTransaction().replace(containerViewId, fragment).addToBackStack("tag").commit();
-//    }
-
     @Override
     public void onListItemClick(int listItem) {
         Bundle bundle = new Bundle();
         bundle.putInt(POSITION, listItem);
         bundle.putString(RECIPE_NAME, recipeNames[listItem]);
-//        StepListFragment slf = new StepListFragment();
-//        slf.setArguments(bundle);
-//        changeTo(slf, android.R.id.content);
         Intent intent = new Intent(getActivity(), StepListActivity.class);
         intent.putExtras(bundle);
         startActivity(intent);
@@ -192,7 +181,6 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
 
                 if (jsonStr != null) {
                     try {
-//                    JSONObject jsonObject = new JSONObject(jsonStr);
                         JSONArray recipes = new JSONArray(jsonStr);
                         recipeNames = new String[recipes.length()];
                         for (int i = 0; i < recipes.length(); i++) {
@@ -252,7 +240,6 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
                 })
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-//                        dialog.dismiss();
                         getActivity().finish();
                     }
                 })

@@ -122,12 +122,6 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
         }
     }
 
-//    private void changeTo(Fragment fragment, int containerViewId) {
-//        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-//        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-//        fragmentManager.beginTransaction().replace(containerViewId, fragment).addToBackStack("tag1").commit();
-//    }
-
     @Override
     public void onListItemClick(int listItem) {
         stepPressed=listItem;

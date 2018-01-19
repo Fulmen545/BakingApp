@@ -16,10 +16,6 @@ public class StepActivity extends AppCompatActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (savedInstanceState == null) {
             android.support.v4.app.FragmentTransaction ft = fragmentManager.beginTransaction();
-//            StepsFragment sf = new StepsFragment();
-//            sf.setArguments(bundle);
-//            ft.add(android.R.id.content, sf, "tag1").commit();
-
             if (position == 0) {
                 DetailFragment df = new DetailFragment();
                 df.setArguments(bundle);
@@ -29,7 +25,6 @@ public class StepActivity extends AppCompatActivity {
                 sf.setArguments(bundle);
                 ft.add(android.R.id.content, sf).commit();
             }
-
         } else {
             fragmentManager.findFragmentByTag("tag1");
         }

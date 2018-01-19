@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 public class DetailActivity extends AppCompatActivity {
-//    private static final String POSITION = "position";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +37,6 @@ public class DetailActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 this.onBackPressed();
-//                NavUtils.navigateUpFromSameTask(this);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
