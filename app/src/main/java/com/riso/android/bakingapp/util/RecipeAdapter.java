@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -17,6 +18,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import com.riso.android.bakingapp.R;
+import com.squareup.picasso.Picasso;
 
 /**
  * Created by richard.janitor on 27-Dec-17.
@@ -27,16 +29,18 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     final private ListItemClickListener mOnClickListener;
 
     private String[] mRecipeNames;
+    private String[] mRecipeIamges;
     public boolean steps;
     private int stepPressed;
     boolean tablet;
 
-    public RecipeAdapter(String[] recipeNames, ListItemClickListener mOnClickListener, boolean steps, int stepPressed, boolean tablet) {
+    public RecipeAdapter(String[] recipeNames, ListItemClickListener mOnClickListener, boolean steps, int stepPressed, boolean tablet, String[] recipeImages) {
         mRecipeNames = recipeNames;
         this.mOnClickListener = mOnClickListener;
         this.steps = steps;
         this.stepPressed = stepPressed;
         this.tablet = tablet;
+        mRecipeIamges=recipeImages;
     }
 
     public interface ListItemClickListener {
@@ -74,6 +78,8 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         TextView recipeNameTv;
         @BindView(R.id.recipeCardLayout)
         LinearLayout linearLayout;
+        @BindView(R.id.imageView)
+        ImageView recipeImage;
 
         public RecipeViewHolder(View itemView) {
             super(itemView);
@@ -98,6 +104,15 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
                 recipeNameTv.setText(mRecipeNames[listIndex]);
                 recipeNameTv.setTextAppearance(itemView.getContext(), R.style.Ingredients);
             } else {
+
+                if (!mRecipeIamges[listIndex].isEmpty() && mRecipeIamges != null){
+                    recipeImage.setVisibility(View.VISIBLE);
+                    Picasso.with(itemView.getContext())
+                            .load(mRecipeIamges[listIndex])
+                            .placeholder(R.drawable.cupcake)
+                            .into(recipeImage);
+
+                }
                 recipeNameTv.setText(mRecipeNames[listIndex]);
             }
         }

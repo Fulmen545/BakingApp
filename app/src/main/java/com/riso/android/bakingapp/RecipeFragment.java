@@ -46,6 +46,7 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
     private static final String RECIPE_NAME = "rec_name";
 
     public String[] recipeNames;
+    public String[] recipeImages;
     @BindView(R.id.rv_recipes)
     RecyclerView mRecipeNamesList;
     public RecipeAdapter mRecipeAdapter;
@@ -88,7 +89,7 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
     }
 
     public void insertIngredients(String recipeID, String recName, String ingredID, String quantity,
-                                  String measure, String ingredient) {
+                                  String measure, String ingredient, String image) {
         ContentValues cv = new ContentValues();
         cv.put(RecipeColumns.RecipeEntry.RECIPE_ID, recipeID);
         cv.put(RecipeColumns.RecipeEntry.RECIPE_NAME, recName);
@@ -96,6 +97,7 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
         cv.put(RecipeColumns.RecipeEntry.QUANTITY, quantity);
         cv.put(RecipeColumns.RecipeEntry.MEASURE, measure);
         cv.put(RecipeColumns.RecipeEntry.INGREDIENT, ingredient);
+        cv.put(RecipeColumns.RecipeEntry.IMAGE, image);
         getContext().getContentResolver().insert(RecipeColumns.RecipeEntry.CONTENT_URI_INGREDIENTS, cv);
     }
 
@@ -136,16 +138,18 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
 
     public void getRecipeNames() {
         Cursor c = getActivity().getContentResolver().query(RecipeColumns.RecipeEntry.CONTENT_URI_INGREDIENTS,
-                new String[]{"DISTINCT " + RecipeColumns.RecipeEntry.RECIPE_NAME},
+                new String[]{"DISTINCT " + RecipeColumns.RecipeEntry.RECIPE_NAME, RecipeColumns.RecipeEntry.IMAGE},
                 null,
                 null,
                 RecipeColumns.RecipeEntry._ID);
         if (c.getCount() != 0) {
             recipeNames = new String[c.getCount()];
+            recipeImages = new String[c.getCount()];
             int i = 0;
             if (c.moveToFirst()) {
                 do {
                     recipeNames[i] = c.getString(c.getColumnIndex(RecipeColumns.RecipeEntry.RECIPE_NAME));
+                    recipeNames[i] = c.getString(c.getColumnIndex(RecipeColumns.RecipeEntry.IMAGE));
                     i++;
                 } while (c.moveToNext());
             }
@@ -184,9 +188,12 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
                     try {
                         JSONArray recipes = new JSONArray(jsonStr);
                         recipeNames = new String[recipes.length()];
+                        recipeImages = new String[recipes.length()];
                         for (int i = 0; i < recipes.length(); i++) {
                             String mRecipeName = recipes.getJSONObject(i).getString("name");
+                            String mRecipeImage = recipes.getJSONObject(i).getString("image");
                             recipeNames[i] = mRecipeName;
+                            recipeImages[i] = mRecipeImage;
                             if (!isInsideDb(mRecipeName)) {
                                 String mRecipeID = Integer.toString(i);
                                 JSONObject o = recipes.getJSONObject(i);
@@ -194,7 +201,7 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
                                 for (int j = 0; j < ingredients.length(); j++) {
                                     String mIngredID = Integer.toString(j);
                                     JSONObject ing = ingredients.getJSONObject(j);
-                                    insertIngredients(mRecipeID, mRecipeName, mIngredID, ing.getString("quantity"), ing.getString("measure"), ing.getString("ingredient"));
+                                    insertIngredients(mRecipeID, mRecipeName, mIngredID, ing.getString("quantity"), ing.getString("measure"), ing.getString("ingredient"), mRecipeImage);
                                 }
                                 JSONArray steps = o.getJSONArray("steps");
                                 for (int k = 0; k < steps.length(); k++) {
@@ -217,7 +224,7 @@ public class RecipeFragment extends Fragment implements RecipeAdapter.ListItemCl
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            mRecipeAdapter = new RecipeAdapter(recipeNames, RecipeFragment.this, false, 0, tabletSize);
+            mRecipeAdapter = new RecipeAdapter(recipeNames, RecipeFragment.this, false, 0, tabletSize, recipeImages);
             mRecipeNamesList.setAdapter(mRecipeAdapter);
         }
 

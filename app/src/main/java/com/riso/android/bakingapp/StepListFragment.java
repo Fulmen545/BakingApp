@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.riso.android.bakingapp.data.RecipeColumns;
+import com.riso.android.bakingapp.util.ExoPlayerSingleton;
 import com.riso.android.bakingapp.util.RecipeAdapter;
 
 import butterknife.BindView;
@@ -31,6 +32,7 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
     private static final String STEP_LIST = "step_list";
     private static final String STEP_COUNT = "step_count";
     private static final String STEP_PRESSED = "step_pressed";
+    private static final String EXO_POSITION = "exo_position";
     private static final String TAG = "StepListFragment";
     private String recipePosition;
     @BindView(R.id.rv_recipes)
@@ -60,6 +62,7 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
             recipeTitle = savedInstanceState.getString(RECIPE_NAME);
             recipeSteps = savedInstanceState.getStringArray(STEP_LIST);
             stepPressed = savedInstanceState.getInt(STEP_PRESSED);
+//            ExoPlayerSingleton.getInstance().setExoCurrentposition(savedInstanceState.getInt(EXO_POSITION));
         } else {
             Bundle bundle = this.getArguments();
             recipePosition = Integer.toString(bundle.getInt(POSITION, 0));
@@ -69,7 +72,7 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
             mRecipeNamesList.setLayoutManager(layoutManager);
             getStepTitles();
         }
-        mRecipeAdapter = new RecipeAdapter(recipeSteps, StepListFragment.this, true, stepPressed, tabletSize);
+        mRecipeAdapter = new RecipeAdapter(recipeSteps, StepListFragment.this, true, stepPressed, tabletSize, null);
         mRecipeNamesList.setAdapter(mRecipeAdapter);
         Log.i(TAG, "RISO - Here is value: " + recipePosition);
     }
@@ -92,6 +95,7 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
         outState.putString(RECIPE_NAME, recipeTitle);
         outState.putStringArray(STEP_LIST, recipeSteps);
         outState.putInt(STEP_PRESSED, stepPressed);
+//        outState.putLong(EXO_POSITION, ExoPlayerSingleton.getInstance().exoCurretPosition());
     }
 
     private void getStepTitles() {

@@ -18,6 +18,7 @@ public class FullScreenVideoActivity extends Activity {
     private static final String URL = "url";
     private final String STATE_RESUME_POSITION = "resumePosition";
     private final String STATE_RESUME_WINDOW = "resumeWindow";
+    private static final String EXO_POSITION = "exo_position";
 
 
     @BindView(R.id.playerView)
@@ -36,6 +37,9 @@ public class FullScreenVideoActivity extends Activity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_full_screen_video);
         ButterKnife.bind(this);
+//        if (savedInstanceState != null){
+//            ExoPlayerSingleton.getInstance().setExoCurrentposition(savedInstanceState.getInt(EXO_POSITION));
+//        }
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -51,6 +55,7 @@ public class FullScreenVideoActivity extends Activity {
         ExoPlayerSingleton.getInstance()
                 .prepareExoPlayer(getApplicationContext(),
                         Uri.parse(url), exoPlayerView);
+//        ExoPlayerSingleton.getInstance().setExoCurrentposition(resumePosition);
         ExoPlayerSingleton.getInstance().goForeground();
     }
 
@@ -73,4 +78,10 @@ public class FullScreenVideoActivity extends Activity {
             ExoPlayerSingleton.getInstance().releasePlayer();
         }
     }
+
+//    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        outState.putLong(EXO_POSITION, ExoPlayerSingleton.getInstance().exoCurretPosition());
+//    }
 }

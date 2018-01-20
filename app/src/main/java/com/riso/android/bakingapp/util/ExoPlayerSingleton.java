@@ -35,6 +35,7 @@ public class ExoPlayerSingleton {
     private SimpleExoPlayer exoPlayer;
     private Uri playerUri;
     private boolean playing = true;
+    private long exoCurrentposition;
 
     public void prepareExoPlayer(Context context, Uri uri, SimpleExoPlayerView exoPlayerView) {
         if (context != null && exoPlayerView != null) {
@@ -53,6 +54,11 @@ public class ExoPlayerSingleton {
             exoPlayer.setVideoSurfaceView(
                     (SurfaceView) exoPlayerView.getVideoSurfaceView());
             exoPlayer.seekTo(exoPlayer.getCurrentPosition() + 1);
+//            exoCurrentposition = exoCurretPosition();
+//            if (exoCurrentposition == 0) {
+//                exoCurrentposition = exoPlayer.getCurrentPosition() + 1;
+//            }
+//            exoPlayer.seekTo(exoCurrentposition);
             exoPlayerView.setPlayer(exoPlayer);
         }
     }
@@ -77,5 +83,13 @@ public class ExoPlayerSingleton {
             exoPlayer.setPlayWhenReady(playing);
         }
     }
+
+//    public long exoCurretPosition(){
+//        return exoCurrentposition;
+//    }
+//
+//    public void setExoCurrentposition(long exoPosition){
+//        exoCurrentposition=exoPosition;
+//    }
 
 }

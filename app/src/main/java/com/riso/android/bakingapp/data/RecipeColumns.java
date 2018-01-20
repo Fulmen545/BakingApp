@@ -28,6 +28,7 @@ public class RecipeColumns {
         public static final String DESCRIPTION = "description";
         public static final String URL = "url";
         public static final String THUMBNAIL = "thumbnail";
+        public static final String IMAGE = "image";
 
         public static final Uri CONTENT_URI_INGREDIENTS = BASE_CONTENT_URI.buildUpon()
                 .appendPath(TABLE_NAME_INGREDIENTS).build();

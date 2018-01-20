@@ -43,6 +43,7 @@ public class StepsFragment extends Fragment {
     private final String STATE_RESUME_POSITION = "resumePosition";
     private final String STATE_PLAYER_FULLSCREEN = "playerFullscreen";
     private final String STATE_PLAYER_PLAYING = "playerState";
+    private static final String EXO_POSITION = "exo_position";
 
     private int position;
     private String stepPosition;
@@ -92,6 +93,7 @@ public class StepsFragment extends Fragment {
             mResumePosition = savedInstanceState.getLong(STATE_RESUME_POSITION);
             mExoPlayerFullscreen = savedInstanceState.getBoolean(STATE_PLAYER_FULLSCREEN);
             mPlayingState = savedInstanceState.getBoolean(STATE_PLAYER_PLAYING);
+//            ExoPlayerSingleton.getInstance().setExoCurrentposition(savedInstanceState.getInt(EXO_POSITION));
         } else {
             mPlayingState = false;
         }
@@ -194,6 +196,7 @@ public class StepsFragment extends Fragment {
         outState.putLong(STATE_RESUME_POSITION, mResumePosition);
         outState.putBoolean(STATE_PLAYER_FULLSCREEN, mExoPlayerFullscreen);
         outState.putBoolean(STATE_PLAYER_PLAYING, mPlayingState);
+//        outState.putLong(EXO_POSITION, ExoPlayerSingleton.getInstance().exoCurretPosition());
 
         super.onSaveInstanceState(outState);
     }
