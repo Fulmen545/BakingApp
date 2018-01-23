@@ -27,8 +27,7 @@
             android:exported="false"
             android:syncable="true" />
         <activity
-            android:name=".StepListActivity"
-            android:configChanges="orientation|screenSize">
+            android:name=".StepListActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
@@ -40,8 +39,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".StepListActivity" />
         </activity>
-        <activity android:name=".StepActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize">
+        <activity android:name=".StepActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".StepListActivity" />
@@ -57,7 +55,6 @@
                 android:resource="@xml/ingredients_widget_provider_info" />
         </receiver>
         <activity android:name=".FullScreenVideoActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="landscape"
             android:theme="@style/FullscreenTheme"/>
     </application>

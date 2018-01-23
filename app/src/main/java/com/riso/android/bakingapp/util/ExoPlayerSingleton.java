@@ -53,12 +53,12 @@ public class ExoPlayerSingleton {
             exoPlayer.clearVideoSurface();
             exoPlayer.setVideoSurfaceView(
                     (SurfaceView) exoPlayerView.getVideoSurfaceView());
-            exoPlayer.seekTo(exoPlayer.getCurrentPosition() + 1);
-//            exoCurrentposition = exoCurretPosition();
-//            if (exoCurrentposition == 0) {
-//                exoCurrentposition = exoPlayer.getCurrentPosition() + 1;
-//            }
-//            exoPlayer.seekTo(exoCurrentposition);
+//            exoPlayer.seekTo(exoPlayer.getCurrentPosition() + 1);
+            exoCurrentposition = getExoCurretPosition();
+            if (exoCurrentposition == 0) {
+                exoCurrentposition = exoPlayer.getCurrentPosition() + 1;
+            }
+            exoPlayer.seekTo(exoCurrentposition);
             exoPlayerView.setPlayer(exoPlayer);
         }
     }
@@ -84,12 +84,16 @@ public class ExoPlayerSingleton {
         }
     }
 
-//    public long exoCurretPosition(){
-//        return exoCurrentposition;
-//    }
-//
-//    public void setExoCurrentposition(long exoPosition){
-//        exoCurrentposition=exoPosition;
-//    }
+    public long exoCurretPosition(){
+        return exoCurrentposition;
+    }
+
+    public long getExoCurretPosition(){
+        return exoPlayer.getCurrentPosition() + 1;
+    }
+
+    public void setExoCurrentposition(long exoPosition){
+        exoCurrentposition=exoPosition;
+    }
 
 }

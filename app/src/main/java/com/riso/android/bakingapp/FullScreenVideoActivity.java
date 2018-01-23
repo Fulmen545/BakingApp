@@ -62,6 +62,7 @@ public class FullScreenVideoActivity extends Activity {
     @Override
     public void onBackPressed() {
         killVideo = false;
+        ExoPlayerSingleton.getInstance().setExoCurrentposition(ExoPlayerSingleton.getInstance().getExoCurretPosition());
         super.onBackPressed();
     }
 
@@ -76,12 +77,13 @@ public class FullScreenVideoActivity extends Activity {
         super.onDestroy();
         if (killVideo) {
             ExoPlayerSingleton.getInstance().releasePlayer();
+//            ExoPlayerSingleton.getInstance().setExoCurrentposition(ExoPlayerSingleton.getInstance().getExoCurretPosition());
         }
     }
 
-//    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        outState.putLong(EXO_POSITION, ExoPlayerSingleton.getInstance().exoCurretPosition());
-//    }
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong(EXO_POSITION, ExoPlayerSingleton.getInstance().getExoCurretPosition());
+    }
 }

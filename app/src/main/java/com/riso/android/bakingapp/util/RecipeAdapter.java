@@ -67,6 +67,11 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         holder.bind(position);
     }
 
+    public void setItemPosition(int position){
+        this.stepPressed=position;
+        notifyDataSetChanged();
+    }
+
 
     @Override
     public int getItemCount() {

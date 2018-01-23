@@ -3,6 +3,7 @@ package com.riso.android.bakingapp;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -15,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.riso.android.bakingapp.data.RecipeColumns;
-import com.riso.android.bakingapp.util.ExoPlayerSingleton;
 import com.riso.android.bakingapp.util.RecipeAdapter;
 
 import butterknife.BindView;
@@ -33,6 +33,7 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
     private static final String STEP_COUNT = "step_count";
     private static final String STEP_PRESSED = "step_pressed";
     private static final String EXO_POSITION = "exo_position";
+    private static final String RV_STATE = "rv_state";
     private static final String TAG = "StepListFragment";
     private String recipePosition;
     @BindView(R.id.rv_recipes)
@@ -56,25 +57,56 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         ButterKnife.bind(this, view);
         tabletSize = getResources().getBoolean(R.bool.isTablet);
+///////////////////////////////////////
+        Bundle bundle = this.getArguments();
+        recipePosition = Integer.toString(bundle.getInt(POSITION, 0));
+        recipeTitle = bundle.getString(RECIPE_NAME);
+        getActivity().setTitle(recipeTitle);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        mRecipeNamesList.setLayoutManager(layoutManager);
+        getStepTitles();
+        if (mRecipeAdapter == null) {
+            mRecipeAdapter = new RecipeAdapter(recipeSteps, StepListFragment.this, true, stepPressed, tabletSize, null);
+            mRecipeNamesList.setAdapter(mRecipeAdapter);
+        }
+/////////////////////////////////////////
 
+//        mRecipeAdapter = new RecipeAdapter(recipeSteps, StepListFragment.this, true, stepPressed, tabletSize, null);
+//        mRecipeNamesList.setAdapter(mRecipeAdapter);
+        Log.i(TAG, "RISO - Here is value: " + recipePosition);
+    }
+
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
         if (savedInstanceState != null){
             recipePosition = savedInstanceState.getString(POSITION);
             recipeTitle = savedInstanceState.getString(RECIPE_NAME);
             recipeSteps = savedInstanceState.getStringArray(STEP_LIST);
             stepPressed = savedInstanceState.getInt(STEP_PRESSED);
-//            ExoPlayerSingleton.getInstance().setExoCurrentposition(savedInstanceState.getInt(EXO_POSITION));
+            mRecipeAdapter.setItemPosition(stepPressed);
+//            Parcelable layoutManagerSavedState = null;
+//            if (savedInstanceState instanceof Bundle) {
+//                layoutManagerSavedState = savedInstanceState.getParcelable(RV_STATE);
+//            }
+////            ExoPlayerSingleton.getInstance().setExoCurrentposition(savedInstanceState.getInt(EXO_POSITION));
+//            mRecipeAdapter = new RecipeAdapter(recipeSteps, StepListFragment.this, true, stepPressed, tabletSize, null);
+//            mRecipeNamesList.setAdapter(mRecipeAdapter);
+//            mRecipeNamesList.getLayoutManager().onRestoreInstanceState(layoutManagerSavedState);
         } else {
-            Bundle bundle = this.getArguments();
-            recipePosition = Integer.toString(bundle.getInt(POSITION, 0));
-            recipeTitle = bundle.getString(RECIPE_NAME);
-            getActivity().setTitle(recipeTitle);
-            LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
-            mRecipeNamesList.setLayoutManager(layoutManager);
-            getStepTitles();
+//            Bundle bundle = this.getArguments();
+//            recipePosition = Integer.toString(bundle.getInt(POSITION, 0));
+//            recipeTitle = bundle.getString(RECIPE_NAME);
+//            getActivity().setTitle(recipeTitle);
+//            LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+//            mRecipeNamesList.setLayoutManager(layoutManager);
+//            getStepTitles();
+//            if (mRecipeAdapter == null) {
+//                mRecipeAdapter = new RecipeAdapter(recipeSteps, StepListFragment.this, true, stepPressed, tabletSize, null);
+//                mRecipeNamesList.setAdapter(mRecipeAdapter);
+//            }
         }
-        mRecipeAdapter = new RecipeAdapter(recipeSteps, StepListFragment.this, true, stepPressed, tabletSize, null);
-        mRecipeNamesList.setAdapter(mRecipeAdapter);
-        Log.i(TAG, "RISO - Here is value: " + recipePosition);
     }
 
     @Override
@@ -95,7 +127,6 @@ public class StepListFragment extends Fragment implements RecipeAdapter.ListItem
         outState.putString(RECIPE_NAME, recipeTitle);
         outState.putStringArray(STEP_LIST, recipeSteps);
         outState.putInt(STEP_PRESSED, stepPressed);
-//        outState.putLong(EXO_POSITION, ExoPlayerSingleton.getInstance().exoCurretPosition());
     }
 
     private void getStepTitles() {

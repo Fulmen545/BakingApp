@@ -1,5 +1,6 @@
 package com.riso.android.bakingapp;
 
+import android.os.PersistableBundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,14 +24,18 @@ public class StepListActivity extends AppCompatActivity {
             DetailFragment detailFragment = new DetailFragment();
             detailFragment.setArguments(bundle);
             // Add the fragment to its container using a transaction
-            fragmentManager.beginTransaction()
-                    .add(R.id.step_list_container, stepFragment)
-                    .commit();
+            if (fragmentManager.findFragmentByTag("tagstep")==null) {
+                fragmentManager.beginTransaction()
+                        .add(R.id.step_list_container, stepFragment, "tagstep")
+                        .commit();
+            }
 
             if (savedInstanceState == null) {
-                fragmentManager.beginTransaction()
-                        .add(R.id.detail_container, detailFragment, "tag1")
-                        .commit();
+                if (fragmentManager.findFragmentByTag("tag1")==null) {
+                    fragmentManager.beginTransaction()
+                            .add(R.id.detail_container, detailFragment, "tag1")
+                            .commit();
+                }
             } else {
                 fragmentManager.findFragmentByTag("tag1");
             }
@@ -40,7 +45,11 @@ public class StepListActivity extends AppCompatActivity {
             fragment.setArguments(bundle);
             FragmentManager fragmentManager = getSupportFragmentManager();
             android.support.v4.app.FragmentTransaction ft = fragmentManager.beginTransaction();
-            ft.add(android.R.id.content, fragment).commit();
+            if (fragmentManager.findFragmentByTag("tag3")==null) {
+                ft.add(android.R.id.content, fragment, "tag3").commit();
+            } else {
+                fragmentManager.findFragmentByTag("tag3");
+            }
         }
     }
 
@@ -53,5 +62,10 @@ public class StepListActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
     }
 }

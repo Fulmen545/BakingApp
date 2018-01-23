@@ -88,15 +88,23 @@ public class StepsFragment extends Fragment {
         getActivity().setTitle(R.string.app_name);
         ButterKnife.bind(this, view);
         tabletSize = getResources().getBoolean(R.bool.isTablet);
-        if (savedInstanceState != null) {
-            mResumeWindow = savedInstanceState.getInt(STATE_RESUME_WINDOW);
-            mResumePosition = savedInstanceState.getLong(STATE_RESUME_POSITION);
-            mExoPlayerFullscreen = savedInstanceState.getBoolean(STATE_PLAYER_FULLSCREEN);
-            mPlayingState = savedInstanceState.getBoolean(STATE_PLAYER_PLAYING);
-//            ExoPlayerSingleton.getInstance().setExoCurrentposition(savedInstanceState.getInt(EXO_POSITION));
-        } else {
-            mPlayingState = false;
-        }
+
+//        if (savedInstanceState != null) {
+//            mResumeWindow = savedInstanceState.getInt(STATE_RESUME_WINDOW);
+//            mResumePosition = savedInstanceState.getLong(STATE_RESUME_POSITION);
+//            mExoPlayerFullscreen = savedInstanceState.getBoolean(STATE_PLAYER_FULLSCREEN);
+//            mPlayingState = savedInstanceState.getBoolean(STATE_PLAYER_PLAYING);
+//            ExoPlayerSingleton.getInstance().setExoCurrentposition(savedInstanceState.getLong(EXO_POSITION));
+//            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+//                Intent intent = new Intent(getContext(), FullScreenVideoActivity.class);
+//                intent.putExtra(URL, mStepArray[0].url);
+//                intent.putExtra(STATE_RESUME_POSITION, Math.max(0, exoPlayerView.getPlayer().getCurrentPosition()));
+//                intent.putExtra(STATE_RESUME_WINDOW, exoPlayerView.getPlayer().getCurrentWindowIndex());
+//                this.startActivity(intent);
+//            }
+//        } else {
+//            mPlayingState = false;
+//        }
         Bundle bundle = this.getArguments();
         stepCount = bundle.getInt(STEP_COUNT);
         recipeName = bundle.getString(RECIPE_NAME);
@@ -161,6 +169,23 @@ public class StepsFragment extends Fragment {
         getActivity().setTitle(recipeName);
         getStepArray();
         initExoPlayer();
+        if (savedInstanceState != null) {
+            mResumeWindow = savedInstanceState.getInt(STATE_RESUME_WINDOW);
+            mResumePosition = savedInstanceState.getLong(STATE_RESUME_POSITION);
+            mExoPlayerFullscreen = savedInstanceState.getBoolean(STATE_PLAYER_FULLSCREEN);
+            mPlayingState = savedInstanceState.getBoolean(STATE_PLAYER_PLAYING);
+            ExoPlayerSingleton.getInstance().setExoCurrentposition(savedInstanceState.getLong(EXO_POSITION));
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && !tabletSize){
+                Intent intent = new Intent(getContext(), FullScreenVideoActivity.class);
+                intent.putExtra(URL, mStepArray[0].url);
+                intent.putExtra(STATE_RESUME_POSITION, savedInstanceState.getLong(EXO_POSITION));
+//                intent.putExtra(STATE_RESUME_WINDOW, exoPlayerView.getPlayer().getCurrentWindowIndex());
+                this.startActivity(intent);
+            }
+        } else {
+            mPlayingState = false;
+            ExoPlayerSingleton.getInstance().setExoCurrentposition(0);
+        }
 
         stepTitle_tv.setText(mStepArray[0].stepTitle);
         stepDesc_tv.setText(mStepArray[0].description);
@@ -196,7 +221,7 @@ public class StepsFragment extends Fragment {
         outState.putLong(STATE_RESUME_POSITION, mResumePosition);
         outState.putBoolean(STATE_PLAYER_FULLSCREEN, mExoPlayerFullscreen);
         outState.putBoolean(STATE_PLAYER_PLAYING, mPlayingState);
-//        outState.putLong(EXO_POSITION, ExoPlayerSingleton.getInstance().exoCurretPosition());
+        outState.putLong(EXO_POSITION, ExoPlayerSingleton.getInstance().getExoCurretPosition());
 
         super.onSaveInstanceState(outState);
     }
@@ -259,7 +284,8 @@ public class StepsFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        ExoPlayerSingleton.getInstance().releasePlayer();
+//        ExoPlayerSingleton.getInstance().setExoCurrentposition(ExoPlayerSingleton.getInstance().getExoCurretPosition());
+//        ExoPlayerSingleton.getInstance().releasePlayer();
     }
 
     @Override
